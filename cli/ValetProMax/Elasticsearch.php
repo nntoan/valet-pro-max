@@ -302,7 +302,7 @@ class Elasticsearch extends AbstractDockerService
                 $config[self::OPENSEARCH_CONFIG_DATA_PATH] = sprintf($openSearchBasePath, $version);
                 yaml_emit_file(BREW_PREFIX . static::OPENSEARCH_CONFIG_YAML, $config);
             } else {
-                throw new DomainException("Switching OpenSearch requires YAML extension. Please run `valet-pro install` then try again.");
+                throw new DomainException("Switching OpenSearch requires YAML extension. Please try again.");
             }
 
             // ==> opensearch

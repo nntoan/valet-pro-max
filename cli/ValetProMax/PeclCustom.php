@@ -412,7 +412,9 @@ class PeclCustom extends AbstractPecl
     {
         switch ($extension) {
             case self::IONCUBE_LOADER_EXTENSION:
-                return $this->architecture->isArm64() ? self::IONCUBE_LOADER_ARM64_EXTENSION . '_' . $this->getPhpVersion() . '.so' : self::IONCUBE_LOADER_EXTENSION . '_' . $this->getPhpVersion() . '.so';
+                return $this->architecture->isArm64()
+                    ? self::IONCUBE_LOADER_ARM64_EXTENSION . '_' . $this->getPhpVersion() . '.so'
+                    : self::IONCUBE_LOADER_EXTENSION . '_' . $this->getPhpVersion() . '.so';
             default:
                 return $extension;
         }
@@ -431,8 +433,10 @@ class PeclCustom extends AbstractPecl
         $phpVersion = $this->getPhpVersion();
 
         if (array_key_exists($phpVersion, self::EXTENSIONS[$extension])) {
-            return sprintf(self::EXTENSIONS[$extension][$phpVersion],
-                $this->architecture->isArm64() ? self::ARM64 : self::INTEL);
+            return sprintf(
+                self::EXTENSIONS[$extension][$phpVersion],
+                $this->architecture->isArm64() ? self::ARM64 : self::INTEL
+            );
         }
 
         return null;
