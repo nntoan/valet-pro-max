@@ -77,7 +77,7 @@ abstract class AbstractPecl
     public function getPhpConfPath(): string
     {
         $phpBinary = str_replace("\n", '', $this->cli->runAsUser('pecl config-get php_bin'));
-        return $this->cli->runAsUser(str_replace("\n", '', sprintf(
+        return str_replace("\n", '', $this->cli->runAsUser(sprintf(
             '%s --ini | grep "Scan for additional" | cut -d":" -f2 | cut -d" " -f2',
             $phpBinary
         )));
