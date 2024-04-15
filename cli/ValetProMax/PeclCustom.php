@@ -8,6 +8,7 @@ use DomainException;
 
 use function Valet\info;
 use function Valet\output;
+use function Valet\user;
 use function Valet\warning;
 
 class PeclCustom extends AbstractPecl

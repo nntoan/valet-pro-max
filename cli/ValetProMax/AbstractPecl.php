@@ -9,6 +9,8 @@ use Exception;
 use Valet\CommandLine;
 use Valet\Filesystem;
 
+use function Valet\user;
+
 abstract class AbstractPecl
 {
     // Extension types.
