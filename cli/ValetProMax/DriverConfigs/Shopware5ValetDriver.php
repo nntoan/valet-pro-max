@@ -19,8 +19,8 @@ class Shopware5ValetDriver extends DriverConfigurator
      */
     public function configure()
     {
-        $path   = $this->getPath();
-        $dir    = $this->getDir();
+        $path = $this->getPath();
+        $dir = $this->getDir();
         $domain = $this->getDomain();
 
         info('Configuring Shopware 5... ');
@@ -48,6 +48,7 @@ class Shopware5ValetDriver extends DriverConfigurator
      * Returns whether the .env exists.
      *
      * @param string $path
+     *
      * @return bool
      */
     public function envExists(string $path)

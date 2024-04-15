@@ -9,9 +9,10 @@ class Shopware5ValetDriver extends ValetDriver
     /**
      * determine if the driver serves a shopware request.
      *
-     * @param  string $sitePath
-     * @param  string $siteName
-     * @param  string $uri
+     * @param string $sitePath
+     * @param string $siteName
+     * @param string $uri
+     *
      * @return bool
      */
     public function serves(string $sitePath, string $siteName, string $uri): bool
@@ -26,9 +27,10 @@ class Shopware5ValetDriver extends ValetDriver
     /**
      * determine if the incoming request is for a static file.
      *
-     * @param  string $sitePath
-     * @param  string $siteName
-     * @param  string $uri
+     * @param string $sitePath
+     * @param string $siteName
+     * @param string $uri
+     *
      * @return string|false
      */
     public function isStaticFile(string $sitePath, string $siteName, string $uri)
@@ -43,9 +45,10 @@ class Shopware5ValetDriver extends ValetDriver
     /**
      * Get the fully resolved path to the application's front controller.
      *
-     * @param  string $sitePath
-     * @param  string $siteName
-     * @param  string $uri
+     * @param string $sitePath
+     * @param string $siteName
+     * @param string $uri
+     *
      * @return string
      */
     public function frontControllerPath(string $sitePath, string $siteName, string $uri): string
@@ -78,6 +81,7 @@ class Shopware5ValetDriver extends ValetDriver
      *
      * @param string $sitePath
      * @param string $uri
+     *
      * @return bool
      */
     protected function isRecoveryPath($sitePath, $uri)
@@ -90,6 +94,7 @@ class Shopware5ValetDriver extends ValetDriver
      *
      * @param string $sitePath
      * @param string $uri
+     *
      * @return bool
      */
     protected function isUpdaterPath($sitePath, $uri)
@@ -103,6 +108,7 @@ class Shopware5ValetDriver extends ValetDriver
      *
      * @param $sitePath
      * @param $uri
+     *
      * @return string
      */
     protected function buildInstallPath($sitePath, $uri)
@@ -115,6 +121,7 @@ class Shopware5ValetDriver extends ValetDriver
      *
      * @param $sitePath
      * @param $uri
+     *
      * @return string
      */
     protected function buildUpdaterPath($sitePath, $uri)

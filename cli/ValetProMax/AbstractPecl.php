@@ -12,8 +12,8 @@ use Valet\Filesystem;
 abstract class AbstractPecl
 {
     // Extension types.
-    const NORMAL_EXTENSION_TYPE = 'extension';
-    const ZEND_EXTENSION_TYPE = 'zend_extension';
+    protected const NORMAL_EXTENSION_TYPE = 'extension';
+    protected const ZEND_EXTENSION_TYPE = 'zend_extension';
 
     /**
      * Shared functionality example:
@@ -30,7 +30,7 @@ abstract class AbstractPecl
      *
      * @formatter:on
      **/
-    const EXTENSIONS = [
+    protected const EXTENSIONS = [
 
     ];
 
@@ -56,6 +56,7 @@ abstract class AbstractPecl
      *
      * @param $extension
      *    The extension key name.
+     *
      * @return mixed
      */
     protected function getExtensionType($extension)
@@ -111,6 +112,7 @@ abstract class AbstractPecl
      *
      * @param $extension
      *    The extension key name.
+     *
      * @return bool
      *   True if installed, false if not installed.
      */
@@ -143,18 +145,19 @@ abstract class AbstractPecl
      */
     public function uninstallExtensions()
     {
-        throw new \Exception(__METHOD__.' not implemented!');
+        throw new \Exception(__METHOD__ . ' not implemented!');
     }
 
     /**
      * Install all extensions defined in EXTENSIONS.
      *
      * @param bool $onlyDefaults
+     *
      * @throws Exception if not overridden but used.
      */
     public function installExtensions($onlyDefaults = true)
     {
-        throw new \Exception(__METHOD__.' not implemented!');
+        throw new \Exception(__METHOD__ . ' not implemented!');
     }
 
     /**
@@ -162,13 +165,14 @@ abstract class AbstractPecl
      *
      * @param $extension
      *    The extension key name.
+     *
      * @return bool True if installed, false if not installed.
      * True if installed, false if not installed.
      * @throws Exception if not overridden but used.
      */
     protected function isInstalled($extension)
     {
-        throw new \Exception(__METHOD__.' not implemented!');
+        throw new \Exception(__METHOD__ . ' not implemented!');
     }
 
     /**
@@ -177,11 +181,12 @@ abstract class AbstractPecl
      *
      * @param $extension
      *    The extension key name.
+     *
      * @return string
      * @throws Exception if not overridden but used.
      */
     protected function getExtensionAlias($extension)
     {
-        throw new \Exception(__METHOD__.' not implemented!');
+        throw new \Exception(__METHOD__ . ' not implemented!');
     }
 }

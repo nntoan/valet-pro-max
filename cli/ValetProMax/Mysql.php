@@ -58,11 +58,11 @@ class Mysql
         Configuration $configuration,
         Site $site
     ) {
-        $this->brew          = $brew;
-        $this->cli           = $cli;
-        $this->files         = $files;
+        $this->brew = $brew;
+        $this->cli = $cli;
+        $this->files = $files;
         $this->configuration = $configuration;
-        $this->site          = $site;
+        $this->site = $site;
     }
 
     /**
@@ -280,7 +280,7 @@ class Mysql
         }
 
         // Create connection
-        $rootPwd    = ($withoutRootPwd ? null : $this->getConfigRootPassword());
+        $rootPwd = ($withoutRootPwd ? null : $this->getConfigRootPassword());
         $this->link = new mysqli('localhost', 'root', $rootPwd);
 
         // Check connection
@@ -526,6 +526,7 @@ class Mysql
 
     /**
      * @param $rootPwd
+     *
      * @throws \JsonException
      */
     protected function setConfigRootPassword($rootPwd)

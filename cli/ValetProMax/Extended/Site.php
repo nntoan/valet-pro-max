@@ -18,7 +18,7 @@ class Site extends ValetSite
      */
     public function rewrites()
     {
-        $config   = $this->config->read();
+        $config = $this->config->read();
         $rewrites = [];
 
         if (isset($config['rewrites']) && isset($config['rewrites'])) {
@@ -37,12 +37,13 @@ class Site extends ValetSite
      *
      * @param $url
      * @param $host
+     *
      * @return false|string
      * @throws JsonException
      */
     public function rewrite($url, $host)
     {
-        $url    = ltrim($url, 'www.');
+        $url = ltrim($url, 'www.');
         $config = $this->config->read();
 
         // Store config
@@ -71,12 +72,13 @@ class Site extends ValetSite
      * Removes public domain from rewrites.
      *
      * @param $url
+     *
      * @return false|string
      * @throws JsonException
      */
     public function unrewrite($url)
     {
-        $url    = ltrim($url, 'www.');
+        $url = ltrim($url, 'www.');
         $config = $this->config->read();
 
         if (isset($config['rewrites'])) {

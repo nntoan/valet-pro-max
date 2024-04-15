@@ -38,8 +38,8 @@ abstract class AbstractPhpExtension
         PhpFpm $phpFpm,
         PhpExtension $phpExtension
     ) {
-        $this->brew         = $brew;
-        $this->phpFpm       = $phpFpm;
+        $this->brew = $brew;
+        $this->phpFpm = $phpFpm;
         $this->phpExtension = $phpExtension;
 
         $this->phpVersion = $this->phpFpm->parsePhpVersion($this->brew->linkedPhp());

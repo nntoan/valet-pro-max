@@ -34,9 +34,9 @@ class DriverConfigurator
         Site $site,
         RedisService $redis
     ) {
-        $this->cli   = $cli;
+        $this->cli = $cli;
         $this->files = $files;
-        $this->site  = $site;
+        $this->site = $site;
         $this->redis = $redis;
     }
 
@@ -47,10 +47,10 @@ class DriverConfigurator
      */
     public function configure()
     {
-        $valetDriver  = ValetDriver::assign(getcwd(), basename(getcwd()), '/');
+        $valetDriver = ValetDriver::assign(getcwd(), basename(getcwd()), '/');
         $classNameArr = explode('\\', get_class($valetDriver));
-        $className    = end($classNameArr);
-        $className    = "Lotus\ValetProMax\DriverConfigs\\{$className}";
+        $className = end($classNameArr);
+        $className = "Lotus\ValetProMax\DriverConfigs\\{$className}";
 
         try {
             $driver = new $className(
@@ -104,8 +104,8 @@ class DriverConfigurator
      */
     protected function getUrl()
     {
-        $secured  = $this->site->secured();
-        $domain   = $this->getDomain();
+        $secured = $this->site->secured();
+        $domain = $this->getDomain();
         $isSecure = in_array($domain, $secured);
         return ($isSecure ? 'https://' : 'http://') . $domain;
     }

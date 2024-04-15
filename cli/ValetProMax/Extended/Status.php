@@ -52,15 +52,15 @@ class Status extends ValetStatus
     ) {
         parent::__construct($config, $brew, $cli, $files);
 
-        $this->mysql    = $mysql;
-        $this->mailhog  = $mailhog;
-        $this->varnish  = $varnish;
-        $this->redis    = $redis;
+        $this->mysql = $mysql;
+        $this->mailhog = $mailhog;
+        $this->varnish = $varnish;
+        $this->redis = $redis;
         $this->rabbitmq = $rabbitmq;
     }
 
     /**
-     * Returns list of Laravel Valet and ValetProMax checks.
+     * Returns list of Laravel Valet and Valet Pro Max checks.
      *
      * @return array
      */
@@ -72,46 +72,46 @@ class Status extends ValetStatus
 
         $checks[] = [
             'description' => '[Valet Pro Max] Is Mysql (' . $mysqlVersion . ') installed?',
-            'check'       => function () {
+            'check' => function () {
                 return $this->mysql->installedVersion();
             },
-            'debug'       => 'Run `composer require nntoan/valet-pro-max` and `valet-pro install`.'
+            'debug' => 'Run `composer require nntoan/valet-pro-max` and `valet-pro install`.'
         ];
         $checks[] = [
             'description' => '[Valet Pro Max] Is Mailhog installed?',
-            'check'       => function () {
+            'check' => function () {
                 return $this->mailhog->installed();
             },
-            'debug'       => 'Run `composer require nntoan/valet-pro-max` and `valet-pro install`.'
+            'debug' => 'Run `composer require nntoan/valet-pro-max` and `valet-pro install`.'
         ];
 
         if ($this->varnish->installed() || $this->varnish->isEnabled()) {
             $checks[] = [
                 'description' => '[Valet Pro Max] Is Varnish installed?',
-                'check'       => function () {
+                'check' => function () {
                     return $this->varnish->installed() && $this->varnish->isEnabled();
                 },
-                'debug'       => 'Varnish is installed but not enabled, you might run `valet-plus varnish on`.'
+                'debug' => 'Varnish is installed but not enabled, you might run `valet-plus varnish on`.'
             ];
             //todo; actually test something?
         }
         if ($this->redis->installed() || $this->redis->isEnabled()) {
             $checks[] = [
                 'description' => '[Valet Pro Max] Is Redis installed?',
-                'check'       => function () {
+                'check' => function () {
                     return $this->redis->installed() && $this->redis->isEnabled();
                 },
-                'debug'       => 'Redis is installed but not enabled, you might run `valet-pro redis on`.'
+                'debug' => 'Redis is installed but not enabled, you might run `valet-pro redis on`.'
             ];
             //todo; actually test something?
         }
         if ($this->rabbitmq->installed() || $this->rabbitmq->isEnabled()) {
             $checks[] = [
                 'description' => '[Valet Pro Max] Is Rabbitmq installed?',
-                'check'       => function () {
+                'check' => function () {
                     return $this->rabbitmq->installed() && $this->rabbitmq->isEnabled();
                 },
-                'debug'       => 'Rabbitmq is installed but not enabled, you might run `valet-pro rabbitmq on`.'
+                'debug' => 'Rabbitmq is installed but not enabled, you might run `valet-pro rabbitmq on`.'
             ];
             //todo; actually test something?
         }

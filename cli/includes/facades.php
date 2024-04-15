@@ -9,7 +9,7 @@ class ValetProMaxFacade
      */
     public static function containerKey(): string
     {
-        return 'Lotus\\ValetProMax\\'.basename(str_replace('\\', '/', get_called_class()));
+        return 'Lotus\\ValetProMax\\' . basename(str_replace('\\', '/', get_called_class()));
     }
 
     /**
@@ -29,45 +29,59 @@ class ValetProMaxFacade
 class PhpExtension extends ValetProMaxFacade
 {
 }
+
 class Mysql extends ValetProMaxFacade
 {
 }
+
 class Mailhog extends ValetProMaxFacade
 {
 }
+
 class Elasticsearch extends ValetProMaxFacade
 {
 }
+
 class Varnish extends ValetProMaxFacade
 {
 }
+
 class RedisService extends ValetProMaxFacade
 {
 }
+
 class Rabbitmq extends ValetProMaxFacade
 {
 }
+
 class RedisPhpExtension extends ValetProMaxFacade
 {
 }
+
 class Memcache extends ValetProMaxFacade
 {
 }
+
 class Xdebug extends ValetProMaxFacade
 {
 }
+
 class Binary extends ValetProMaxFacade
 {
 }
+
 class DriverConfigurator extends ValetProMaxFacade
 {
 }
+
 class Docker extends ValetProMaxFacade
 {
 }
+
 class PeclCustom extends ValetProMaxFacade
 {
 }
+
 class Architecture extends ValetProMaxFacade
 {
 }

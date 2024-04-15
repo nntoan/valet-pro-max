@@ -38,6 +38,7 @@ class Mailhog extends AbstractService
      * @param Filesystem $files
      * @param CommandLine $cli
      * @param Site $site
+     *
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      */
@@ -50,9 +51,9 @@ class Mailhog extends AbstractService
     ) {
         parent::__construct($configuration, $brew, $files, $cli);
 
-        $container             = Container::getInstance();
+        $container = Container::getInstance();
         $this->eventDispatcher = $container->get('event_dispatcher');
-        $this->site            = $site;
+        $this->site = $site;
     }
 
     /**
@@ -67,6 +68,7 @@ class Mailhog extends AbstractService
      * Install mailhog and configuration the TLD to listen to.
      *
      * @param string $tld
+     *
      * @throws \JsonException
      */
     public function install(string $tld = 'test'): void

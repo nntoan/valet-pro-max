@@ -19,10 +19,10 @@ class Magento2ValetDriver extends DriverConfigurator
      */
     public function configure()
     {
-        $path   = $this->getPath();
-        $dir    = $this->getDir();
+        $path = $this->getPath();
+        $dir = $this->getDir();
         $domain = $this->getDomain();
-        $url    = $this->getUrl() . '/';
+        $url = $this->getUrl() . '/';
 
         info('Configuring Magento 2... ');
 
@@ -72,6 +72,7 @@ class Magento2ValetDriver extends DriverConfigurator
      * Returns whether the env.php exists.
      *
      * @param string $path
+     *
      * @return bool
      */
     public function envExists(string $path)
@@ -83,6 +84,7 @@ class Magento2ValetDriver extends DriverConfigurator
      * Returns whether the config.php exists.
      *
      * @param string $path
+     *
      * @return bool
      */
     public function configExists(string $path)

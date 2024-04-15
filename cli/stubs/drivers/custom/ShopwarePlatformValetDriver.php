@@ -7,13 +7,14 @@ use Valet\Drivers\ValetDriver;
 class ShopwarePlatformValetDriver extends ValetDriver
 {
     /**
-    * Determine if the driver serves the request.
-    *
-    * @param  string  $sitePath
-    * @param  string  $siteName
-    * @param  string  $uri
-    * @return bool
-    */
+     * Determine if the driver serves the request.
+     *
+     * @param string $sitePath
+     * @param string $siteName
+     * @param string $uri
+     *
+     * @return bool
+     */
     public function serves(string $sitePath, string $siteName, string $uri): bool
     {
         $corePath = realpath($sitePath . '/vendor/shopware/core');
@@ -24,14 +25,16 @@ class ShopwarePlatformValetDriver extends ValetDriver
         }
         return false;
     }
+
     /**
-    * Determine if the incoming request is for a static file.
-    *
-    * @param  string  $sitePath
-    * @param  string  $siteName
-    * @param  string  $uri
-    * @return string|false
-    */
+     * Determine if the incoming request is for a static file.
+     *
+     * @param string $sitePath
+     * @param string $siteName
+     * @param string $uri
+     *
+     * @return string|false
+     */
     public function isStaticFile(string $sitePath, string $siteName, string $uri)
     {
         if (file_exists($staticFilePath = $sitePath . '/public' . $uri)) {
@@ -41,14 +44,16 @@ class ShopwarePlatformValetDriver extends ValetDriver
         }
         return false;
     }
+
     /**
-    * Get the fully resolved path to the application's front controller.
-    *
-    * @param  string  $sitePath
-    * @param  string  $siteName
-    * @param  string  $uri
-    * @return string
-    */
+     * Get the fully resolved path to the application's front controller.
+     *
+     * @param string $sitePath
+     * @param string $siteName
+     * @param string $uri
+     *
+     * @return string
+     */
     public function frontControllerPath(string $sitePath, string $siteName, string $uri): string
     {
         $this->loadServerEnvironmentVariables($sitePath, $siteName);
@@ -71,44 +76,52 @@ class ShopwarePlatformValetDriver extends ValetDriver
 
         return $sitePath . '/public/index.php';
     }
+
     /**
      * check if uri contains shopware install path
      *
      * @param string $sitePath
      * @param string $uri
+     *
      * @return bool
      */
     protected function isInstallPath($sitePath, $uri)
     {
         return (strpos($uri, '/recovery/install') !== false);
     }
+
     /**
      * check if uri contains shopware update path
      *
      * @param string $sitePath
      * @param string $uri
+     *
      * @return bool
      */
     protected function isUpdatePath($sitePath, $uri)
     {
         return (strpos($uri, '/recovery/update') !== false);
     }
+
     /**
      * build shopware install url
      *
      * @param $sitePath
      * @param $uri
+     *
      * @return string
      */
     protected function buildInstallPath($sitePath, $uri)
     {
         return $sitePath . '/public/recovery/install/index.php';
     }
+
     /**
      * build shopware update url
      *
      * @param $sitePath
      * @param $uri
+     *
      * @return string
      */
     protected function buildUpdatePath($sitePath, $uri)

@@ -26,6 +26,7 @@ class DataEvent extends Event
      * Get a value.
      *
      * @param $key
+     *
      * @return mixed|null
      */
     public function get($key)

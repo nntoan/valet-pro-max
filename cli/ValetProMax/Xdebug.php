@@ -37,7 +37,7 @@ class Xdebug extends AbstractPhpExtension
     ) {
         parent::__construct($brew, $phpFpm, $phpExtension);
 
-        $this->cli   = $cli;
+        $this->cli = $cli;
         $this->files = $files;
     }
 
@@ -85,7 +85,7 @@ class Xdebug extends AbstractPhpExtension
         }
 
         $contents = $this->files->get(__DIR__ . '/../stubs/xdebug/v' . $version . '.ini');
-        $destDir  = dirname(dirname($this->phpIniPath)) . '/conf.d/';
+        $destDir = dirname(dirname($this->phpIniPath)) . '/conf.d/';
         $this->files->putAsUser(
             $destDir . 'xdebug-v' . $version . '.ini',
             $contents

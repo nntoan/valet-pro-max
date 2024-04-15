@@ -39,7 +39,7 @@ abstract class AbstractDockerService
         CommandLine $cli,
         Filesystem $files
     ) {
-        $this->cli   = $cli;
+        $this->cli = $cli;
         $this->files = $files;
     }
 
@@ -80,6 +80,7 @@ abstract class AbstractDockerService
      *
      * @param $command
      * @param $dir
+     *
      * @return $this
      */
     public function runCommand($command, $dir): self
@@ -104,6 +105,7 @@ abstract class AbstractDockerService
      * Starts the Docker container by the service's name. Creates the container first, if it doesn't exist yet.
      *
      * @param $name
+     *
      * @return $this
      */
     public function upContainer($name): self
@@ -114,7 +116,7 @@ abstract class AbstractDockerService
 
         info("Docker up version {$name} (this might take a while)...");
         $installPath = $this->getComposeInstallPath($name);
-        $installDir  = $this->getComposeInstallDir($name);
+        $installDir = $this->getComposeInstallDir($name);
 
         // Copy docker-compose.yml stub to installation/running path
         if (!$this->files->isDir($installDir)) {
@@ -138,6 +140,7 @@ abstract class AbstractDockerService
      * Stops the Docker container by the service's name.
      *
      * @param $name
+     *
      * @return $this
      */
     public function stopContainer($name): self
@@ -159,6 +162,7 @@ abstract class AbstractDockerService
      * Stop and remove containers, networks, images and volumes by the service's name.
      *
      * @param $name
+     *
      * @return $this
      */
     public function downContainer($name): self
@@ -200,6 +204,7 @@ abstract class AbstractDockerService
      * Returns path of the docker-compose.yml stub file for the service.
      *
      * @param $name
+     *
      * @return string
      */
     protected function getComposeStubPath($name): string
@@ -215,6 +220,7 @@ abstract class AbstractDockerService
      * Returns installation path of the docker-compose.yml stub file for the service.
      *
      * @param $name
+     *
      * @return string
      */
     protected function getComposeInstallPath($name): string
@@ -230,6 +236,7 @@ abstract class AbstractDockerService
      * Returns the directory of the installation path of the docker-compose.yml stub file for the service.
      *
      * @param $name
+     *
      * @return string
      */
     protected function getComposeInstallDir($name): string

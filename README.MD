@@ -2,16 +2,16 @@
 
 ## Introduction
 
-Valet Pro Max is a development environment for macOS. No Vagrant, no Docker, no `/etc/hosts` file. This project uses 
+Valet **Pro Max** is a development environment for macOS. No Vagrant, no Docker, no `/etc/hosts` file. This project uses 
 [laravel/valet](https://github.com/laravel/valet) as a dependency.
 
 
 ## Installation
 
-> :warning: Valet Pro Max requires macOS and [Homebrew](https://brew.sh/). Before installation, you should make sure that no 
+> :warning: Valet **Pro Max** requires macOS and [Homebrew](https://brew.sh/). Before installation, you should make sure that no 
 > other programs such as Apache or Nginx are binding to your local machine's port 80.
 
-> :warning: Valet Pro Max requires [Composer](https://getcomposer.org/) to be installed. It's NOT recommended to install Composer via Homebrew. 
+> :warning: Valet **Pro Max** requires [Composer](https://getcomposer.org/) to be installed. It's [NOT recommended](https://github.com/nntoan/valet-pro-max/wiki/Composer) to install Composer via Homebrew. 
 
 To get started, you first need to ensure that Homebrew is up-to-date using the update command:
 ```shell
@@ -30,19 +30,19 @@ brew services restart php@8.1
 > - Uninstall Valet+ with `valet uninstall` first.
 > - Remove Valet+ package with `composer global remove weprovide/valet-plus`.
 
-Install Valet Pro Max 1.x-dev with composer:
+Install Valet **Pro Max** 1.x-dev with composer:
 ```shell
 composer global require nntoan/valet-pro-max:1.x-dev
 ```
 
-Finally, you may execute the Valet Pro Max `install` command. This will configure and install Valet Pro Max, Nginx, DnsMasq and other
+Finally, you may execute the Valet **Pro Max** `install` command. This will configure and install Valet **Pro Max**, Nginx, DnsMasq and other
 services. In addition, use `--help` to see all installation options. 
 ```shell
 valet-pro install
 ```
 
-The daemons Valet Pro Max depends on will be configured to launch when your system starts. Once Valet Pro MAx is installed, try pinging
-any `*.test` domain on your terminal using a command such as `ping foobar.test`. If Valet Pro Max is installed correctly you 
+The daemons Valet **Pro Max** depends on will be configured to launch when your system starts. Once Valet **Pro Max** is installed, try pinging
+any `*.test` domain on your terminal using a command such as `ping foobar.test`. If Valet **Pro Max** is installed correctly you 
 should see this domain responding on `127.0.0.1`.
 
 ## Valet Pro Max features
@@ -65,8 +65,9 @@ Here are a few key differences compared to the original Valet:
 - Rewrite/unrewrite public domain to local environment
 - ~~DevTools~~
 - Binaries (magerun, magerun2, drush, wp-cli, shopware-cli, shopify-cli)
+- Log rotation for Valet **Pro Max** services (nginx, mysql, phpfpm). To prevent big logfiles consume all disk storage.
 
-### Changes vs Valet+ 2
+### Changes vs Valet+
 
 - Use command `valet-pro` instead of `valet`.
 - Rename `.env.valet` to `.valet-env.php`.
@@ -74,7 +75,7 @@ Here are a few key differences compared to the original Valet:
 - Use `127.0.0.1` as Redis host instead of `/tmp/redis.sock`.
 - Choose which binaries to install (default all) and self-update on `valet-pro install` command.
 - Adds dependency on Docker for Elasticsearch, see https://docs.docker.com/desktop/install/mac-install/
-- Adds support for OpenSearch, you can install use all base commands of ES such as: `valet-pro opensearch install`, `valet-pro opensearch|os use 1`
+- Supports Opensearch using Homebrew maintainer tap.
 
 ## Credits
 

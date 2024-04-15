@@ -43,13 +43,14 @@ class PhpFpm extends ValetPhpFpm
     ) {
         parent::__construct($brew, $cli, $files, $config, $site, $nginx);
 
-        $container             = Container::getInstance();
+        $container = Container::getInstance();
         $this->eventDispatcher = $container->get('event_dispatcher');
-        $this->phpExtension    = $phpExtension;
+        $this->phpExtension = $phpExtension;
     }
 
     /**
      * @param $phpVersion
+     *
      * @return string
      */
     public function parsePhpVersion($phpVersion)
@@ -103,7 +104,7 @@ class PhpFpm extends ValetPhpFpm
 
         // Get php directory.
         $fpmConfigFile = $this->fpmConfigPath($phpVersion);
-        $destDir       = dirname(dirname($fpmConfigFile)) . '/conf.d/';
+        $destDir = dirname(dirname($fpmConfigFile)) . '/conf.d/';
 
         // Add performance ini settings.
         $contents = $this->files->get(__DIR__ . '/../../stubs/z-performance.ini'); //@todo; remove file on uninstall?

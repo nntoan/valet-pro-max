@@ -59,7 +59,8 @@ echo getPhpExecutablePath(array_search($foundVersion, $phps));
  * Extract PHP executable path from PHP Version.
  * Copied from Brew.php and modified.
  *
- * @param  string|null  $phpFormulaName  For example, "php@8.1"
+ * @param string|null $phpFormulaName For example, "php@8.1"
+ *
  * @return string
  */
 function getPhpExecutablePath(?string $phpFormulaName = null)
@@ -67,17 +68,17 @@ function getPhpExecutablePath(?string $phpFormulaName = null)
     $brewPrefix = exec('printf $(brew --prefix)');
 
     // Check the default `/opt/homebrew/opt/php@8.1/bin/php` location first
-    if (file_exists($brewPrefix."/opt/{$phpFormulaName}/bin/php")) {
-        return $brewPrefix."/opt/{$phpFormulaName}/bin/php";
+    if (file_exists($brewPrefix . "/opt/{$phpFormulaName}/bin/php")) {
+        return $brewPrefix . "/opt/{$phpFormulaName}/bin/php";
     }
 
     // Check the `/opt/homebrew/opt/php71/bin/php` location for older installations
     $oldPhpFormulaName = str_replace(['@', '.'], '', $phpFormulaName); // php@7.1 to php71
-    if (file_exists($brewPrefix."/opt/{$oldPhpFormulaName}/bin/php")) {
-        return $brewPrefix."/opt/{$oldPhpFormulaName}/bin/php";
+    if (file_exists($brewPrefix . "/opt/{$oldPhpFormulaName}/bin/php")) {
+        return $brewPrefix . "/opt/{$oldPhpFormulaName}/bin/php";
     }
 
-    throw new Exception('Cannot find an executable path for provided PHP version: '.$phpFormulaName);
+    throw new Exception('Cannot find an executable path for provided PHP version: ' . $phpFormulaName);
 }
 
 function presumePhpVersionFromBrewFormulaName(string $formulaName)
@@ -86,7 +87,7 @@ function presumePhpVersionFromBrewFormulaName(string $formulaName)
         // Figure out its link
         $details = json_decode(shell_exec("brew info $formulaName --json"));
 
-        if (! empty($details[0]->aliases[0])) {
+        if (!empty($details[0]->aliases[0])) {
             $formulaName = $details[0]->aliases[0];
         } else {
             return null;

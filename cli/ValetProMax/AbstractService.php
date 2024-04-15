@@ -41,9 +41,9 @@ abstract class AbstractService
         CommandLine $cli
     ) {
         $this->configuration = $configuration;
-        $this->brew          = $brew;
-        $this->files         = $files;
-        $this->cli           = $cli;
+        $this->brew = $brew;
+        $this->files = $files;
+        $this->cli = $cli;
     }
 
     /**
@@ -75,7 +75,7 @@ abstract class AbstractService
     public function isEnabled(): bool
     {
         $config = $this->configuration->read();
-        $name   = $this->getConfigClassName();
+        $name = $this->getConfigClassName();
 
         return (
             isset($config[$name]) &&
@@ -88,12 +88,13 @@ abstract class AbstractService
      * Stores the enabled state of the service in the configuration.
      *
      * @param bool $state
+     *
      * @throws JsonException
      */
     public function setEnabled(bool $state): void
     {
         $config = $this->configuration->read();
-        $name   = $this->getConfigClassName();
+        $name = $this->getConfigClassName();
         if (!isset($config[$name])) {
             $config[$name] = [];
         }
@@ -110,7 +111,7 @@ abstract class AbstractService
     public function removeEnabled(): void
     {
         $config = $this->configuration->read();
-        $name   = $this->getConfigClassName();
+        $name = $this->getConfigClassName();
         if (!isset($config[$name])) {
             $config[$name] = [];
         }

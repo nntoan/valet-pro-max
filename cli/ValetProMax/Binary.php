@@ -8,6 +8,7 @@ use DomainException;
 use Valet\Brew;
 use Valet\CommandLine;
 use Valet\Filesystem;
+
 use function Valet\info;
 use function Valet\warning;
 
@@ -23,6 +24,7 @@ class Binary
     protected const WP_CLI = 'wp';
     /** @var string */
     protected const SHOPWARE_CLI = 'shopware-cli';
+    /** @var string */
     protected const SHOPIFY_CLI = 'shopify-cli';
 
     /**
@@ -35,34 +37,34 @@ class Binary
      * ]
      */
     protected const SUPPORTED_BINARIES = [
-        self::N98_MAGERUN    => [
-            'url'          => 'https://files.magerun.net/n98-magerun-2.3.0.phar',
-            'shasum'       => 'b3e09dafccd4dd505a073c4e8789d78ea3def893cfc475a214e1154bff3aa8e4',
+        self::N98_MAGERUN => [
+            'url' => 'https://files.magerun.net/n98-magerun-2.3.0.phar',
+            'shasum' => 'b3e09dafccd4dd505a073c4e8789d78ea3def893cfc475a214e1154bff3aa8e4',
             'bin_location' => BREW_PREFIX . '/bin/',
-            'framework'    => 'Magento'
+            'framework' => 'Magento'
         ],
-        self::N98_MAGERUN_2  => [
-            'url'          => 'https://files.magerun.net/n98-magerun2-7.3.1.phar',
-            'shasum'       => 'e46dec7f2c3c0b707046a9cada8deea494c8fe910dc9a14288c0b85c63a4253e',
+        self::N98_MAGERUN_2 => [
+            'url' => 'https://files.magerun.net/n98-magerun2-7.3.1.phar',
+            'shasum' => 'e46dec7f2c3c0b707046a9cada8deea494c8fe910dc9a14288c0b85c63a4253e',
             'bin_location' => BREW_PREFIX . '/bin/',
-            'framework'    => 'Magento 2'
+            'framework' => 'Magento 2'
         ],
         self::DRUSH_LAUNCHER => [
-            'url'          => 'https://github.com/drush-ops/drush-launcher/releases/download/0.10.2/drush.phar',
-            'shasum'       => '0ae18cd3f8745fdd58ab852481b89428b57be6523edf4d841ebef198c40271be',
+            'url' => 'https://github.com/drush-ops/drush-launcher/releases/download/0.10.2/drush.phar',
+            'shasum' => '0ae18cd3f8745fdd58ab852481b89428b57be6523edf4d841ebef198c40271be',
             'bin_location' => BREW_PREFIX . '/bin/',
-            'framework'    => 'Drupal'
+            'framework' => 'Drupal'
         ],
-        self::WP_CLI         => [
+        self::WP_CLI => [
             'brew_formula' => 'wp-cli'
         ],
-        self::SHOPWARE_CLI   => [
+        self::SHOPWARE_CLI => [
             'brew_formula' => 'shopware-cli',
-            'brew_tap'     => 'friendsofshopware/tap'
+            'brew_tap' => 'friendsofshopware/tap'
         ],
-        self::SHOPIFY_CLI   => [
+        self::SHOPIFY_CLI => [
             'brew_formula' => 'shopify-cli',
-            'brew_tap'     => 'shopify/shopify'
+            'brew_tap' => 'shopify/shopify'
         ]
     ];
 
@@ -83,8 +85,8 @@ class Binary
         CommandLine $cli,
         Filesystem $files
     ) {
-        $this->brew  = $brew;
-        $this->cli   = $cli;
+        $this->brew = $brew;
+        $this->cli = $cli;
         $this->files = $files;
     }
 
@@ -102,6 +104,7 @@ class Binary
      * Check if the current binary is installed by the binary key name.
      *
      * @param string $binary
+     *
      * @return bool
      */
     public function installed($binary): bool
@@ -150,7 +153,7 @@ class Binary
 
         // Download and install binary.
         if (isset(static::SUPPORTED_BINARIES[$binary]['bin_location'])) {
-            $url      = $this->getUrl($binary);
+            $url = $this->getUrl($binary);
             $urlSplit = explode('/', $url);
             $fileName = $urlSplit[count($urlSplit) - 1];
 
@@ -181,7 +184,7 @@ class Binary
         // Install brew formula.
         if (isset(static::SUPPORTED_BINARIES[$binary]['brew_formula'])) {
             $formula = static::SUPPORTED_BINARIES[$binary]['brew_formula'];
-            $tap     = (
+            $tap = (
             isset(static::SUPPORTED_BINARIES[$binary]['brew_tap']) ?
                 [static::SUPPORTED_BINARIES[$binary]['brew_tap']] :
                 []
@@ -243,7 +246,7 @@ class Binary
         // Update brew formula.
         if (isset(static::SUPPORTED_BINARIES[$binary]['brew_formula'])) {
             $formula = static::SUPPORTED_BINARIES[$binary]['brew_formula'];
-            $tap     = (
+            $tap = (
             isset(static::SUPPORTED_BINARIES[$binary]['brew_tap']) ?
                 [static::SUPPORTED_BINARIES[$binary]['brew_tap']] :
                 []
@@ -256,6 +259,7 @@ class Binary
      * Get the url that belongs to the binary key name.
      *
      * @param string $binary
+     *
      * @return string
      */
     protected function getUrl($binary)
@@ -270,6 +274,7 @@ class Binary
      * Get the shasum that belongs to the binary key name.
      *
      * @param string $binary
+     *
      * @return string
      */
     protected function getShasum($binary)
@@ -284,6 +289,7 @@ class Binary
      * Get the bin_location that belongs to the binary key name.
      *
      * @param string $binary
+     *
      * @return string
      */
     protected function getBinLocation($binary)
@@ -299,6 +305,7 @@ class Binary
      *
      * @param string $binary
      * @param string $fileName
+     *
      * @return bool
      */
     protected function checkShasum($binary, $fileName)

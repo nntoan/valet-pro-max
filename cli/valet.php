@@ -8,6 +8,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
+
 use function Valet\info;
 use function Valet\output;
 use function Valet\table;
@@ -29,21 +30,28 @@ require_once __DIR__ . '/includes/events.php';
 /** @var Application $app */
 $laravelValetName = $app->getName();
 $laravelValetVersion = $app->getVersion();
-$valetPlusName = 'Valet Pro Max';
+$valetProMaxName = 'Valet <options=bold,underscore>Pro Max</>';
 $valetProMaxVersion = '1.0.0';
 
 $app->setVersion($laravelValetName . ' ' . $laravelValetVersion);
-$app->setName(' ' . $valetPlusName . ' ' . $valetProMaxVersion . "\n");
+$app->setName(' <fg=bright-cyan>' . $valetProMaxName . ' ' . $valetProMaxVersion . "</>\n");
 
 /**
  * Extend the 'install' command.
  */
 $cmd = $app->get('install');
 $app
-    ->command('install', function (InputInterface $input, OutputInterface $output, $withMariadb, $withMysql80, $withMysql81, $withBinary) use ($cmd) {
+    ->command('install', function (
+        InputInterface $input,
+        OutputInterface $output,
+        $withMariadb,
+        $withMysql80,
+        $withMysql81,
+        $withBinary
+    ) use ($cmd) {
         $types = $withMariadb + $withMysql80 + $withMysql81;
         if ($types > 1) {
-            throw new RuntimeException('Cannot install Valet Pro Max with multiple DBMS, please pick one.');
+            throw new RuntimeException('Cannot install Valet <options=bold,underscore>Pro Max</> with multiple DBMS, please pick one.');
         }
         $mySqlVersion = $withMariadb ? 'mariadb' : 'mysql@5.7';
         $mySqlVersion = $withMysql81 ? 'mysql' : $mySqlVersion;
@@ -57,7 +65,7 @@ $app
         // Run original command.
         $cmd->run($input, $output);
 
-        info("\nInstalling Valet Pro Max services");
+        info("\nInstalling Valet <options=bold,underscore>Pro Max</> services");
 
         Mysql::install($mySqlVersion);
         Mailhog::install(Configuration::read()['tld']);
@@ -74,9 +82,9 @@ $app
             }
         }
 
-        info("\nValet Pro Max installed successfully!");
+        info("\nValet <options=bold,underscore>Pro Max</> installed successfully!");
     })
-    ->descriptions('Install the Valet Pro Max services, with MySQL 5.7 as default DBMS.')
+    ->descriptions('Install the Valet <options=bold,underscore>Pro Max</> services, with MySQL 5.7 as default DBMS.')
     ->addOption('with-mysql80', null, InputOption::VALUE_NONE, "Install with MySQL 8.0")
     ->addOption('with-mysql81', null, InputOption::VALUE_NONE, "Install with MySQL 8.1")
     ->addOption('with-mariadb', null, InputOption::VALUE_NONE, "Install with MariaDB")
@@ -98,18 +106,25 @@ if (is_dir(VALET_HOME_PATH)) {
      * Extend the 'on-latest-version' command.
      */
     $cmd = $app->get('on-latest-version');
-    $app->command('on-latest-version', function (InputInterface $input, OutputInterface $output) use ($cmd, $valetProMaxVersion) {
-        output('On latest Valet Pro Max version?');
-        if (Valet::onLatestProMaxVersion($valetProMaxVersion)) {
-            output('Yes');
-        } else {
-            output(sprintf('Your version of Valet Pro Max (%s) is not the latest version available.', $valetProMaxVersion));
-        }
+    $app->command(
+        'on-latest-version',
+        function (InputInterface $input, OutputInterface $output) use ($cmd, $valetProMaxVersion) {
+            output('On latest Valet <options=bold,underscore>Pro Max</> version?');
+            if (Valet::onLatestProMaxVersion($valetProMaxVersion)) {
+                output('Yes');
+            } else {
+                output(sprintf(
+                    'Your version of Valet <options=bold,underscore>Pro Max</> (%s) is not the latest version available.',
+                    $valetProMaxVersion
+                ));
+            }
 
-        output('');
-        output('On latest Laravel Valet version?');
-        $cmd->run($input, $output);
-    }, ['latest'])->descriptions('Determine if this is the latest version of Valet Pro Max and Laravel Valet');
+            output('');
+            output('On latest Laravel Valet version?');
+            $cmd->run($input, $output);
+        },
+        ['latest']
+    )->descriptions('Determine if this is the latest version of Valet <options=bold,underscore>Pro Max</> and Laravel Valet');
 
     /**
      * Extend the 'tld' command.
@@ -129,7 +144,7 @@ if (is_dir(VALET_HOME_PATH)) {
             PhpFpm::restart();
             Nginx::restart();
 
-            info('Your Valet Pro Max TLD has been updated to [' . $tld . '].');
+            info('Your Valet <options=bold,underscore>Pro Max</> TLD has been updated to [' . $tld . '].');
         }
     }, ['domain'])->descriptions('Get or set the TLD used for Valet sites.');
 
@@ -253,8 +268,8 @@ if (is_dir(VALET_HOME_PATH)) {
     $cmd = $app->get('uninstall');
     $app->command('uninstall [--force]', function (InputInterface $input, OutputInterface $output, $force) use ($cmd) {
         if ($force) {
-            warning('YOU ARE ABOUT TO UNINSTALL Valet Pro Max services, configs and logs.');
-            $helper   = $this->getHelperSet()->get('question');
+            warning('YOU ARE ABOUT TO UNINSTALL Valet <options=bold,underscore>Pro Max</> services, configs and logs.');
+            $helper = $this->getHelperSet()->get('question');
             $question = new ConfirmationQuestion('Are you sure you want to proceed? [y/N]', false);
 
             if (false === $helper->ask($input, $output, $question)) {
@@ -278,7 +293,10 @@ if (is_dir(VALET_HOME_PATH)) {
         }
 
         $cmd->run($input, $output);
-    })->descriptions('Uninstall the Valet services', ['--force' => 'Do a forceful uninstall of Valet and related Homebrew pkgs']);
+    })->descriptions(
+        'Uninstall the Valet services',
+        ['--force' => 'Do a forceful uninstall of Valet and related Homebrew pkgs']
+    );
 
     /**
      * @todo: Extend the 'log' command to log 'elasticsearch', 'mysql'.
@@ -293,7 +311,10 @@ if (is_dir(VALET_HOME_PATH)) {
             $modes = ['install', 'on', 'enable', 'off', 'disable', 'uninstall'];
 
             if (!in_array($mode, $modes)) {
-                throw new RuntimeException(sprintf('Not enough arguments (missing: "mode"). Available modes: %s', implode(', ', $modes)));
+                throw new RuntimeException(sprintf(
+                    'Not enough arguments (missing: "mode"). Available modes: %s',
+                    implode(', ', $modes)
+                ));
             }
 
             switch ($mode) {
@@ -321,7 +342,11 @@ if (is_dir(VALET_HOME_PATH)) {
             Nginx::restart();
         })
         ->descriptions('Enable/disable Mailhog')
-        ->addArgument('mode', InputArgument::REQUIRED, 'Available modes: ' . implode(', ', ['install', 'on', 'enable', 'off', 'disable', 'uninstall']));
+        ->addArgument(
+                'mode',
+                InputArgument::REQUIRED,
+                'Available modes: ' . implode(', ', ['install', 'on', 'enable', 'off', 'disable', 'uninstall'])
+        );
 
     /**
      * Varnish services.
@@ -331,7 +356,10 @@ if (is_dir(VALET_HOME_PATH)) {
             $modes = ['install', 'on', 'enable', 'off', 'disable', 'uninstall'];
 
             if (!in_array($mode, $modes)) {
-                throw new RuntimeException(sprintf('Not enough arguments (missing: "mode"). Available modes: %s', implode(', ', $modes)));
+                throw new RuntimeException(sprintf(
+                    'Not enough arguments (missing: "mode"). Available modes: %s',
+                    implode(', ', $modes)
+                ));
             }
 
             switch ($mode) {
@@ -356,7 +384,11 @@ if (is_dir(VALET_HOME_PATH)) {
             }
         })
         ->descriptions('Enable/disable Varnish')
-        ->addArgument('mode', InputArgument::REQUIRED, 'Available modes: ' . implode(', ', ['install', 'on', 'enable', 'off', 'disable', 'uninstall']));
+        ->addArgument(
+            'mode',
+            InputArgument::REQUIRED,
+            'Available modes: ' . implode(', ', ['install', 'on', 'enable', 'off', 'disable', 'uninstall'])
+        );
 
     /**
      * Redis services.
@@ -366,7 +398,10 @@ if (is_dir(VALET_HOME_PATH)) {
             $modes = ['install', 'on', 'enable', 'off', 'disable', 'uninstall'];
 
             if (!in_array($mode, $modes)) {
-                throw new RuntimeException(sprintf('Not enough arguments (missing: "mode"). Available modes: %s', implode(', ', $modes)));
+                throw new RuntimeException(sprintf(
+                    'Not enough arguments (missing: "mode"). Available modes: %s',
+                    implode(', ', $modes)
+                ));
             }
 
             switch ($mode) {
@@ -391,7 +426,11 @@ if (is_dir(VALET_HOME_PATH)) {
             }
         })
         ->descriptions('Enable/disable Redis')
-        ->addArgument('mode', InputArgument::REQUIRED, 'Available modes: ' . implode(', ', ['install', 'on', 'enable', 'off', 'disable', 'uninstall']));
+        ->addArgument(
+            'mode',
+            InputArgument::REQUIRED,
+            'Available modes: ' . implode(', ', ['install', 'on', 'enable', 'off', 'disable', 'uninstall'])
+        );
 
     /**
      * Rabbitmq services.
@@ -401,7 +440,10 @@ if (is_dir(VALET_HOME_PATH)) {
             $modes = ['install', 'on', 'enable', 'off', 'disable', 'uninstall'];
 
             if (!in_array($mode, $modes)) {
-                throw new RuntimeException(sprintf('Not enough arguments (missing: "mode"). Available modes: %s', implode(', ', $modes)));
+                throw new RuntimeException(sprintf(
+                    'Not enough arguments (missing: "mode"). Available modes: %s',
+                    implode(', ', $modes)
+                ));
             }
 
             switch ($mode) {
@@ -426,150 +468,172 @@ if (is_dir(VALET_HOME_PATH)) {
             }
         })
         ->descriptions('Enable/disable Rabbitmq')
-        ->addArgument('mode', InputArgument::REQUIRED, 'Available modes: ' . implode(', ', ['install', 'on', 'enable', 'off', 'disable', 'uninstall']));
+        ->addArgument(
+            'mode',
+            InputArgument::REQUIRED,
+            'Available modes: ' . implode(', ', ['install', 'on', 'enable', 'off', 'disable', 'uninstall'])
+        );
 
     /**
      * Database services and commands.
      */
     $app
-        ->command('db [run] [name] [optional] [-y|--yes] [-s|--show]', function ($input, $output, $run, $name, $optional) {
-            $helper   = $this->getHelperSet()->get('question');
-            $defaults = $input->getOptions();
+        ->command(
+            'db [run] [name] [optional] [-y|--yes] [-s|--show]',
+            function ($input, $output, $run, $name, $optional) {
+                $helper = $this->getHelperSet()->get('question');
+                $defaults = $input->getOptions();
 
-            if ($run === 'list' || $run === 'ls') {
-                Mysql::listDatabases();
-
-                return;
-            }
-
-            if ($run === 'create') {
-                $databaseName = Mysql::createDatabase($name);
-                if (!$databaseName) {
-                    warning('Error creating database');
+                if ($run === 'list' || $run === 'ls') {
+                    Mysql::listDatabases();
 
                     return;
                 }
 
-                info('Database "' . $databaseName . '" created successfully');
-
-                return;
-            }
-
-            if ($run === 'drop') {
-                if (!$defaults['yes']) {
-                    $question = new ConfirmationQuestion('Are you sure you want to delete the database? [y/N] ', false);
-                    if (!$helper->ask($input, $output, $question)) {
-                        return;
-                    }
-                }
-
-                $databaseName = Mysql::dropDatabase($name);
-                if (!$databaseName) {
-                    warning('Error dropping database');
-
-                    return;
-                }
-
-                info('Database "' . $databaseName . '" dropped successfully');
-
-                return;
-            }
-
-            if ($run === 'reset') {
-                if (!$defaults['yes']) {
-                    $question = new ConfirmationQuestion('Are you sure you want to reset the database? [y/N] ', false);
-                    if (!$helper->ask($input, $output, $question)) {
-                        return;
-                    }
-                }
-
-                $dropped = Mysql::dropDatabase($name);
-                if (!$dropped) {
-                    warning('Error deleting database');
-
-                    return;
-                }
-
-                $databaseName = Mysql::createDatabase($name);
-                if (!$databaseName) {
-                    warning('Error creating database');
-
-                    return;
-                }
-
-                info('Database "' . $databaseName . '" reset successfully');
-
-                return;
-            }
-
-            if ($run === 'import') {
-                info('Importing database...');
-                if (!$name) {
-                    throw new RuntimeException('Please provide a dump file');
-                }
-
-                // check if database already exists.
-                if (Mysql::isDatabaseExists($optional)) {
-                    $question = new ConfirmationQuestion('Database already exists are you sure you want to continue? [y/N] ', false);
-                    if (!$helper->ask($input, $output, $question)) {
-                        return;
-                    }
-                }
-
-                Mysql::importDatabase($name, $optional);
-
-                return;
-            }
-
-            if ($run === 'reimport') {
-                if (!$defaults['yes']) {
-                    $question = new ConfirmationQuestion('Are you sure you want to reimport the database? [y/N] ', false);
-                    if (!$helper->ask($input, $output, $question)) {
-                        warning('Aborted');
+                if ($run === 'create') {
+                    $databaseName = Mysql::createDatabase($name);
+                    if (!$databaseName) {
+                        warning('Error creating database');
 
                         return;
                     }
-                }
-                info('Resetting database, importing database...');
-                if (!$name) {
-                    throw new RuntimeException('Please provide a dump file');
-                }
-                Mysql::reimportDatabase($name, $optional);
 
-                return;
-            }
-
-            if ($run === 'export' || $run === 'dump') {
-                info('Exporting database...');
-                $data = Mysql::exportDatabase($name, $optional);
-                info('Database "' . $data['database'] . '" exported into file "' . $data['filename'] . '"');
-
-                return;
-            }
-
-            if ($run === 'pwd' || $run === 'password') {
-                if ($defaults['show']) {
-                    $question = new ConfirmationQuestion('Are you sure you want to show the configured root password? [y/N] ', false);
-                    if ($defaults['yes'] || $helper->ask($input, $output, $question)) {
-                        info('Current configured password for root user: ' . Mysql::getConfigRootPassword());
-                        output('<fg=yellow>Please note this is the password as configured in Valet PRo Max!</>');
-                    }
+                    info('Database "' . $databaseName . '" created successfully');
 
                     return;
                 }
 
-                if ($name === null || $optional === null) {
-                    throw new RuntimeException('Missing arguments to change root user password. Use: "valet db pwd <old> <new>"');
+                if ($run === 'drop') {
+                    if (!$defaults['yes']) {
+                        $question = new ConfirmationQuestion(
+                            'Are you sure you want to delete the database? [y/N] ',
+                            false
+                        );
+                        if (!$helper->ask($input, $output, $question)) {
+                            return;
+                        }
+                    }
+
+                    $databaseName = Mysql::dropDatabase($name);
+                    if (!$databaseName) {
+                        warning('Error dropping database');
+
+                        return;
+                    }
+
+                    info('Database "' . $databaseName . '" dropped successfully');
+
+                    return;
                 }
 
-                info('Setting password for root user...');
-                Mysql::setRootPassword($name, $optional);
+                if ($run === 'reset') {
+                    if (!$defaults['yes']) {
+                        $question = new ConfirmationQuestion(
+                            'Are you sure you want to reset the database? [y/N] ',
+                            false
+                        );
+                        if (!$helper->ask($input, $output, $question)) {
+                            return;
+                        }
+                    }
 
-                return;
+                    $dropped = Mysql::dropDatabase($name);
+                    if (!$dropped) {
+                        warning('Error deleting database');
+
+                        return;
+                    }
+
+                    $databaseName = Mysql::createDatabase($name);
+                    if (!$databaseName) {
+                        warning('Error creating database');
+
+                        return;
+                    }
+
+                    info('Database "' . $databaseName . '" reset successfully');
+
+                    return;
+                }
+
+                if ($run === 'import') {
+                    info('Importing database...');
+                    if (!$name) {
+                        throw new RuntimeException('Please provide a dump file');
+                    }
+
+                    // check if database already exists.
+                    if (Mysql::isDatabaseExists($optional)) {
+                        $question = new ConfirmationQuestion(
+                            'Database already exists are you sure you want to continue? [y/N] ',
+                            false
+                        );
+                        if (!$helper->ask($input, $output, $question)) {
+                            return;
+                        }
+                    }
+
+                    Mysql::importDatabase($name, $optional);
+
+                    return;
+                }
+
+                if ($run === 'reimport') {
+                    if (!$defaults['yes']) {
+                        $question = new ConfirmationQuestion(
+                            'Are you sure you want to reimport the database? [y/N] ',
+                            false
+                        );
+                        if (!$helper->ask($input, $output, $question)) {
+                            warning('Aborted');
+
+                            return;
+                        }
+                    }
+                    info('Resetting database, importing database...');
+                    if (!$name) {
+                        throw new RuntimeException('Please provide a dump file');
+                    }
+                    Mysql::reimportDatabase($name, $optional);
+
+                    return;
+                }
+
+                if ($run === 'export' || $run === 'dump') {
+                    info('Exporting database...');
+                    $data = Mysql::exportDatabase($name, $optional);
+                    info('Database "' . $data['database'] . '" exported into file "' . $data['filename'] . '"');
+
+                    return;
+                }
+
+                if ($run === 'pwd' || $run === 'password') {
+                    if ($defaults['show']) {
+                        $question = new ConfirmationQuestion(
+                            'Are you sure you want to show the configured root password? [y/N] ',
+                            false
+                        );
+                        if ($defaults['yes'] || $helper->ask($input, $output, $question)) {
+                            info('Current configured password for root user: ' . Mysql::getConfigRootPassword());
+                            output('<fg=yellow>Please note this is the password as configured in Valet <options=bold,underscore>Pro Max</>!</>');
+                        }
+
+                        return;
+                    }
+
+                    if ($name === null || $optional === null) {
+                        throw new RuntimeException('Missing arguments to change root user password. Use: "valet db pwd <old> <new>"');
+                    }
+
+                    info('Setting password for root user...');
+                    Mysql::setRootPassword($name, $optional);
+
+                    return;
+                }
+
+                throw new RuntimeException('Command not found');
             }
-
-            throw new RuntimeException('Command not found');
-        })
+        )
         ->descriptions('Database commands (list/ls, create, drop, reset, import, reimport, export/dump, pwd/password)');
 
     /**
@@ -578,53 +642,68 @@ if (is_dir(VALET_HOME_PATH)) {
     $esVersions = Elasticsearch::getSupportedVersions();
     $esDockerVersions = Elasticsearch::getDockerVersions();
     $app
-        ->command('elasticsearch', function (InputInterface $input, OutputInterface $output, $mode, $targetVersion = null, $current = false) {
-            $modes         = ['install', 'use', 'on', 'enable', 'off', 'disable', 'uninstall'];
-            $targetVersion = $targetVersion ?? 'opensearch'; //@todo only when we don't have any installed versions, if we do pick the first installed?
+        ->command(
+            'elasticsearch',
+            function (InputInterface $input, OutputInterface $output, $mode, $targetVersion = null, $current = false) {
+                $modes = ['install', 'use', 'on', 'enable', 'off', 'disable', 'uninstall'];
+                $targetVersion = $targetVersion ?? 'opensearch'; //@todo only when we don't have any installed versions, if we do pick the first installed?
 
-            if ($current) {
-                // Show current running version information.
-                $esCurrentVersion = Elasticsearch::getCurrentVersion();
-                output(sprintf('Current running version: <fg=green>%s</>', ($esCurrentVersion ?: 'none')));
-                return;
+                if ($current) {
+                    // Show current running version information.
+                    $esCurrentVersion = Elasticsearch::getCurrentVersion();
+                    output(sprintf('Current running version: <fg=green>%s</>', ($esCurrentVersion ?: 'none')));
+                    return;
+                }
+
+                if (!in_array($mode, $modes)) {
+                    throw new RuntimeException(sprintf(
+                        'Not enough arguments (missing: "mode"). Available modes: %s',
+                        implode(', ', $modes)
+                    ));
+                }
+
+                switch ($mode) {
+                    case 'install':
+                    case 'use':
+                        Elasticsearch::useVersion($targetVersion, Configuration::read()['tld']);
+
+                        break;
+                    case 'on':
+                    case 'enable':
+                        Elasticsearch::restart();
+
+                        break;
+                    case 'off':
+                    case 'disable':
+                        Elasticsearch::stop();
+
+                        break;
+                    case 'uninstall':
+                        Elasticsearch::uninstall();
+
+                        break;
+                }
+
+                PhpFpm::restart();
+                Nginx::restart();
             }
-
-            if (!in_array($mode, $modes)) {
-                throw new RuntimeException(sprintf('Not enough arguments (missing: "mode"). Available modes: %s', implode(', ', $modes)));
-            }
-
-            switch ($mode) {
-                case 'install':
-                case 'use':
-                    Elasticsearch::useVersion($targetVersion, Configuration::read()['tld']);
-
-                    break;
-                case 'on':
-                case 'enable':
-                    Elasticsearch::restart();
-
-                    break;
-                case 'off':
-                case 'disable':
-                    Elasticsearch::stop();
-
-                    break;
-                case 'uninstall':
-                    Elasticsearch::uninstall();
-
-                    break;
-            }
-
-            PhpFpm::restart();
-            Nginx::restart();
-        })
+        )
         ->descriptions(
-                'Enable/disable/switch Elasticsearch. ' .
-                'The versions [' . implode(', ', $esDockerVersions) . '] require Docker.'
+            'Enable/disable/switch Elasticsearch. ' .
+            'The versions [' . implode(', ', $esDockerVersions) . '] require Docker.'
         )
         ->setAliases(['es'])
-        ->addArgument('mode', InputArgument::OPTIONAL, 'Available modes: ' . implode(', ', ['install', 'use', 'on', 'enable', 'off', 'disable', 'uninstall']))
-        ->addArgument('targetVersion', InputArgument::OPTIONAL, "Version to use, supported versions: " . implode(', ', $esVersions), null)
+        ->addArgument(
+            'mode',
+            InputArgument::OPTIONAL,
+            'Available modes: ' . implode(', ', ['install', 'use', 'on', 'enable', 'off', 'disable', 'uninstall'])
+        )
+        ->addArgument(
+            'targetVersion',
+            InputArgument::OPTIONAL,
+            "Version to use, supported versions: " . implode(', ', $esVersions),
+            null
+        )
         ->addOption(
             'current',
             'c',
@@ -640,7 +719,10 @@ if (is_dir(VALET_HOME_PATH)) {
         $modes = ['on', 'enable', 'off', 'disable'];
 
         if (!in_array($mode, $modes)) {
-            throw new RuntimeException(sprintf('Not enough arguments (missing: "mode"). Available modes: %s', implode(', ', $modes)));
+            throw new RuntimeException(sprintf(
+                'Not enough arguments (missing: "mode"). Available modes: %s',
+                implode(', ', $modes)
+            ));
         }
 
         $restart = false;
@@ -660,13 +742,45 @@ if (is_dir(VALET_HOME_PATH)) {
     })->descriptions('Enable/disable Xdebug');
 
     /**
+     * Ioncube php extension.
+     */
+    $app->command('ioncube [mode]', function ($mode) {
+        $modes = ['on', 'enable', 'off', 'disable'];
+
+        if (!in_array($mode, $modes)) {
+            throw new RuntimeException(sprintf(
+                'Not enough arguments (missing: "mode"). Available modes: %s',
+                implode(', ', $modes)
+            ));
+        }
+
+        $restart = false;
+        switch ($mode) {
+            case 'enable':
+            case 'on':
+                $restart = PeclCustom::installExtension('ioncube_loader_mac');
+                break;
+            case 'disable':
+            case 'off':
+                $restart = PeclCustom::uninstallExtension('ioncube_loader_mac');
+                break;
+        }
+        if ($restart) {
+            PhpFpm::restart();
+        }
+    })->descriptions('Enable/disable Ioncube');
+
+    /**
      * Memcache php extension.
      */
     $app->command('memcache [mode]', function ($mode) {
         $modes = ['on', 'enable', 'off', 'disable'];
 
         if (!in_array($mode, $modes)) {
-            throw new RuntimeException(sprintf('Not enough arguments (missing: "mode"). Available modes: %s', implode(', ', $modes)));
+            throw new RuntimeException(sprintf(
+                'Not enough arguments (missing: "mode"). Available modes: %s',
+                implode(', ', $modes)
+            ));
         }
 
         $restart = false;
@@ -697,7 +811,7 @@ if (is_dir(VALET_HOME_PATH)) {
         }
 
         $host = Site::host(getcwd());
-        $url  = Site::rewrite($url, $host);
+        $url = Site::rewrite($url, $host);
         if ($url === false) {
             warning('Aborting, url rewrite failed, might already exist');
 

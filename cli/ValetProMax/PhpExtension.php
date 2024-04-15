@@ -7,6 +7,7 @@ namespace Lotus\ValetProMax;
 use Valet\Brew;
 use Valet\CommandLine;
 use Valet\Filesystem;
+
 use function Valet\info;
 use function Valet\output;
 
@@ -31,53 +32,53 @@ class PhpExtension
     public const REDIS_EXTENSION = 'redis';
 
     protected const PHP_EXTENSIONS = [
-        self::XDEBUG_EXTENSION        => [
-            'default'   => false,
+        self::XDEBUG_EXTENSION => [
+            'default' => false,
             'ini_files' => [
                 '20-xdebug'
             ]
         ],
-        self::APCU_EXTENSION          => [
-            'default'   => true,
+        self::APCU_EXTENSION => [
+            'default' => true,
             'ini_files' => [
                 '20-apcu'
             ]
         ],
-        self::MEMCACHE_EXTENSION      => [
-            'default'         => false,
+        self::MEMCACHE_EXTENSION => [
+            'default' => false,
             'brew_dependency' => 'libmemcached',
-            'ini_files'       => [
+            'ini_files' => [
                 // also installed with redis, might be an issue when both are used and one is uninstalled
                 '20-igbinary',
                 '20-msgpack',
                 '30-memcached'
             ]
         ],
-        self::YAML_EXTENSION          => [
-            'default'         => true,
+        self::YAML_EXTENSION => [
+            'default' => true,
             'brew_dependency' => 'libyaml',
-            'ini_files'       => [
+            'ini_files' => [
                 '20-yaml'
             ]
         ],
         self::DATASTRUCTURE_EXTENSION => [
-            'default'   => true,
+            'default' => true,
             'ini_files' => [
                 '20-ds.ini'
             ]
         ],
-        self::IMAGICK_EXTENSION       => [
-            'default'   => true,
+        self::IMAGICK_EXTENSION => [
+            'default' => true,
             'ini_files' => [
                 '20-imagick.ini'
             ]
         ],
-        self::REDIS_EXTENSION         => [
-            'default'        => false,
+        self::REDIS_EXTENSION => [
+            'default' => false,
             'php_extensions' => [
                 'igbinary'
             ],
-            'ini_files'      => [
+            'ini_files' => [
                 // also installed with memcache, might be an issue when both are used and one is uninstalled
                 '20-igbinary',
                 '20-redis'
@@ -102,8 +103,8 @@ class PhpExtension
         CommandLine $cli,
         Filesystem $files
     ) {
-        $this->brew  = $brew;
-        $this->cli   = $cli;
+        $this->brew = $brew;
+        $this->cli = $cli;
         $this->files = $files;
     }
 
@@ -130,6 +131,7 @@ class PhpExtension
      *
      * @param $extension
      *    The extension key name.
+     *
      * @return bool
      */
     public function installExtension($extension, $phpVersion)
@@ -161,6 +163,7 @@ class PhpExtension
      * @param $extension
      * @param $phpVersion
      * @param $phpIniConfigPath
+     *
      * @return bool
      */
     public function uninstallExtension($extension, $phpVersion, $phpIniConfigPath)
@@ -175,6 +178,7 @@ class PhpExtension
     /**
      * @param $extension
      * @param $phpVersion
+     *
      * @return bool
      */
     public function isInstalled($extension, $phpVersion)
@@ -190,6 +194,7 @@ class PhpExtension
      * @param $extension
      *    The extension key name.
      * @param $phpVersion
+     *
      * @return bool
      */
     protected function install($extension, $phpVersion)
@@ -231,6 +236,7 @@ class PhpExtension
      * @param $extension
      * @param $phpVersion
      * @param $phpIniConfigPath
+     *
      * @return bool
      */
     protected function uninstall($extension, $phpVersion, $phpIniConfigPath)
@@ -274,6 +280,7 @@ class PhpExtension
      *
      * @param $extension
      *    The extension key name.
+     *
      * @return bool
      */
     protected function isDefaultExtension($extension)
@@ -296,6 +303,7 @@ class PhpExtension
      * @param $extension
      * @param $phpVersion
      * @param false $withTap
+     *
      * @return string
      */
     protected function getExtensionFormula($extension, $phpVersion, $withTap = false)
@@ -312,6 +320,7 @@ class PhpExtension
      * Check if the extension has a brew dependency.
      *
      * @param mixed $extension
+     *
      * @return bool
      */
     protected function hasBrewDependency($extension)
@@ -327,6 +336,7 @@ class PhpExtension
      * Get the brew dependency.
      *
      * @param mixed $extension
+     *
      * @return mixed
      */
     protected function getBrewDependency($extension)
@@ -338,6 +348,7 @@ class PhpExtension
      * Check if the extension has any extra php extension dependencies.
      *
      * @param $extension
+     *
      * @return bool
      */
     protected function hasExtraPhpExtensions($extension)
@@ -353,6 +364,7 @@ class PhpExtension
      * Get the extra php extensions.
      *
      * @param mixed $extension
+     *
      * @return mixed
      */
     protected function getExtraPhpExtensions($extension)
@@ -366,7 +378,7 @@ class PhpExtension
      */
     protected function removeIniDefinition($extension, $phpIniConfigPath)
     {
-        $destDir  = dirname(dirname($phpIniConfigPath)) . '/conf.d/';
+        $destDir = dirname(dirname($phpIniConfigPath)) . '/conf.d/';
         $iniFiles = $this->getIniFiles($extension);
         foreach ($iniFiles as $iniFile) {
             $this->files->unlink($destDir . $iniFile . '.ini');
@@ -375,6 +387,7 @@ class PhpExtension
 
     /**
      * @param $extension
+     *
      * @return array
      */
     protected function getIniFiles($extension)

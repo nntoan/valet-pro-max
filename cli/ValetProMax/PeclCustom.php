@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Lotus\ValetProMax;
 
 use DomainException;
+
 use function Valet\info;
 use function Valet\output;
 use function Valet\warning;
@@ -12,13 +13,13 @@ use function Valet\warning;
 class PeclCustom extends AbstractPecl
 {
     // Extensions.
-    const IONCUBE_LOADER_EXTENSION = 'ioncube_loader_mac';
-    const IONCUBE_LOADER_ARM64_EXTENSION = 'ioncube_loader_dar';
-    const ARM64 = 'dar_arm64';
-    const INTEL = 'mac_x86-64';
+    protected const IONCUBE_LOADER_EXTENSION = 'ioncube_loader_mac';
+    protected const IONCUBE_LOADER_ARM64_EXTENSION = 'ioncube_loader_dar';
+    protected const ARM64 = 'dar_arm64';
+    protected const INTEL = 'mac_x86-64';
 
     // File extensions.
-    const TAR_GZ_FILE_EXTENSION = '.tar.gz';
+    protected const TAR_GZ_FILE_EXTENSION = '.tar.gz';
 
     /**
      * Supported pecl extensions for the PECL manager. There are 2 types of extensions supported: zend_extensions and
@@ -58,7 +59,7 @@ class PeclCustom extends AbstractPecl
      *
      * @formatter:on
      */
-    const EXTENSIONS = [
+    protected const EXTENSIONS = [
         self::IONCUBE_LOADER_EXTENSION => [
             '8.3' => 'https://downloads.ioncube.com/loader_downloads/ioncube_loaders_%s.tar.gz',
             '8.2' => 'https://downloads.ioncube.com/loader_downloads/ioncube_loaders_%s.tar.gz',
@@ -99,6 +100,7 @@ class PeclCustom extends AbstractPecl
      *
      * @param $extension
      *    The extension key name.
+     *
      * @return bool
      */
     public function installExtension($extension)
@@ -175,14 +177,14 @@ class PeclCustom extends AbstractPecl
         $unpackagedDirectory = $this->getPackagedDirectory($extension);
 
         // Download and unzip
-        $this->cli->passthru("cd /tmp && sudo -u ".user()." curl -O $url");
+        $this->cli->passthru("cd /tmp && sudo -u " . user() . " curl -O $url");
 
         // Unpackage the file using file extension.
         $fileExtension = $this->getFileExtension($extension);
         switch ($fileExtension) {
             case self::TAR_GZ_FILE_EXTENSION:
                 info('[PECL-CUSTOM] Unpackaging .tar.gz:');
-                $this->cli->passthru("cd /tmp && sudo -u ".user()." tar -xvzf $fileName");
+                $this->cli->passthru("cd /tmp && sudo -u " . user() . " tar -xvzf $fileName");
                 break;
             default:
                 throw new DomainException("File extension $fileExtension is not supported yet!");
@@ -209,6 +211,7 @@ class PeclCustom extends AbstractPecl
      *
      * @param $extension
      *    The extension key name.
+     *
      * @return bool
      */
     public function enableExtension($extension)
@@ -269,6 +272,7 @@ class PeclCustom extends AbstractPecl
      *
      * @param $extension
      *    The extension key name.
+     *
      * @return bool
      */
     public function uninstallExtension($extension)
@@ -381,6 +385,7 @@ class PeclCustom extends AbstractPecl
      *
      * @param $extension
      *    The extension key name.
+     *
      * @return bool
      */
     private function isDefaultExtension($extension)
@@ -400,6 +405,7 @@ class PeclCustom extends AbstractPecl
      *
      * @param $extension
      *    The extension key name.
+     *
      * @return string
      */
     protected function getExtensionAlias($extension)
@@ -417,6 +423,7 @@ class PeclCustom extends AbstractPecl
      *
      * @param $extension
      *    The extension key name.
+     *
      * @return null
      */
     private function getVersion($extension)
@@ -424,7 +431,8 @@ class PeclCustom extends AbstractPecl
         $phpVersion = $this->getPhpVersion();
 
         if (array_key_exists($phpVersion, self::EXTENSIONS[$extension])) {
-            return sprintf(self::EXTENSIONS[$extension][$phpVersion], $this->architecture->isArm64() ? self::ARM64 : self::INTEL);
+            return sprintf(self::EXTENSIONS[$extension][$phpVersion],
+                $this->architecture->isArm64() ? self::ARM64 : self::INTEL);
         }
 
         return null;
@@ -435,6 +443,7 @@ class PeclCustom extends AbstractPecl
      *
      * @param $extension
      *    The extension key name.
+     *
      * @return mixed
      */
     private function getFileExtension($extension)
@@ -450,6 +459,7 @@ class PeclCustom extends AbstractPecl
      *
      * @param $extension
      *    The extension key name.
+     *
      * @return mixed
      */
     private function getPackagedDirectory($extension)
@@ -465,6 +475,7 @@ class PeclCustom extends AbstractPecl
      *
      * @param $extension
      *    The extension key name.
+     *
      * @return mixed
      */
     private function getExtensionName($extension)
