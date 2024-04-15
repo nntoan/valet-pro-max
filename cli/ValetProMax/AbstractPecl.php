@@ -70,6 +70,20 @@ abstract class AbstractPecl
     }
 
     /**
+     * Get the current PHP conf.d path.
+     *
+     * @return string
+     */
+    public function getPhpConfPath(): string
+    {
+        $phpBinary = str_replace("\n", '', $this->cli->runAsUser('pecl config-get php_bin'));
+        return $this->cli->runAsUser(
+            '%s --ini | grep "Scan for additional" | cut -d":" -f2 | cut -d" " -f2',
+            $phpBinary
+        );
+    }
+
+    /**
      * Get the php.ini file path from the PECL config.
      *
      * @return mixed

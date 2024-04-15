@@ -13,6 +13,9 @@ use function Valet\warning;
 
 class PeclCustom extends AbstractPecl
 {
+    /** @var string */
+    protected const PHP_CONFIGURATION_STUB = __DIR__ . '/../stubs/pecl-custom.ini';
+
     // Extensions.
     protected const IONCUBE_LOADER_EXTENSION = 'ioncube_loader_mac';
     protected const IONCUBE_LOADER_ARM64_EXTENSION = 'ioncube_loader_dar';
@@ -73,6 +76,7 @@ class PeclCustom extends AbstractPecl
             '5.6' => 'https://downloads.ioncube.com/loader_downloads/ioncube_loaders_%s.tar.gz',
             'file_extension' => self::TAR_GZ_FILE_EXTENSION,
             'packaged_directory' => 'ioncube',
+            'priority' => '00',
             'default' => false,
             'extension_type' => self::ZEND_EXTENSION_TYPE,
             'extension_php_name' => 'the ionCube PHP Loader'
@@ -246,13 +250,25 @@ class PeclCustom extends AbstractPecl
      */
     public function enable($extension)
     {
-        // Install php.ini directive.
         $extensionAlias = $this->getExtensionAlias($extension);
         $extensionType = $this->getExtensionType($extension);
-        $phpIniPath = $this->getPhpIniPath();
-        $directive = $extensionType . '="' . $extensionAlias . '"';
-        $phpIniFile = $this->files->get($phpIniPath);
-        $this->saveIniFile($phpIniPath, $directive . "\n" . $phpIniFile);
+        $priority = $this->getLoadedPriority($extension);
+        $iniFile = $this->getPhpConfPath() . '/' . $priority . '-' . $this->getPackagedDirectory($extension) . '.ini';
+
+        $this->files->putAsUser(
+            $iniFile,
+            str_replace(
+                [
+                    'EXTENSION_TYPE',
+                    'EXTENSION_ALIAS',
+                ],
+                [
+                    $extensionType,
+                    $extensionAlias
+                ],
+                $this->files->get(static::PHP_CONFIGURATION_STUB)
+            )
+        );
 
         output("\t$extension successfully enabled");
     }
@@ -296,7 +312,10 @@ class PeclCustom extends AbstractPecl
      */
     public function disable($extension)
     {
-        $this->removeIniDefinition($extension);
+        $priority = $this->getLoadedPriority($extension);
+        $iniFile = $this->getPhpConfPath() . '/' . $priority . '-' . $this->getPackagedDirectory($extension) . '.ini';
+        $this->files->unlink($iniFile);
+        output("\t$extension successfully disabled");
     }
 
     /**
@@ -329,6 +348,23 @@ class PeclCustom extends AbstractPecl
         $extensionAlias = $this->getExtensionAlias($extension);
 
         return $this->files->exists($extensionDirectory . '/' . $extensionAlias);
+    }
+
+    /**
+     * Replace all definitions of the .so file to the given extension within the php.ini file.
+     *
+     * @param $extension
+     *    The extension key name.
+     */
+    private function addIniDefinition($extension)
+    {
+        // Install php.ini directive.
+        $extensionAlias = $this->getExtensionAlias($extension);
+        $extensionType = $this->getExtensionType($extension);
+        $phpIniPath = $this->getPhpIniPath();
+        $directive = $extensionType . '="' . $extensionAlias . '"';
+        $phpIniFile = $this->files->get($phpIniPath);
+        $this->saveIniFile($phpIniPath, $directive . "\n" . $phpIniFile);
     }
 
     /**
@@ -473,6 +509,22 @@ class PeclCustom extends AbstractPecl
             return self::EXTENSIONS[$extension]['packaged_directory'];
         }
         throw new DomainException('packaged_directory key is required for custom PECL packages');
+    }
+
+    /**
+     * Get the loader priority of the extension.
+     *
+     * @param $extension
+     *    The extension key name.
+     *
+     * @return mixed
+     */
+    private function getLoadedPriority($extension)
+    {
+        if (array_key_exists('priority', self::EXTENSIONS[$extension])) {
+            return self::EXTENSIONS[$extension]['priority'];
+        }
+        throw new DomainException('priority key is required for custom PECL packages');
     }
 
     /**
