@@ -26,9 +26,6 @@ class ValetProMaxFacade
 /**
  * Valet Pro Max classes
  */
-class Brew extends ValetProMaxFacade
-{
-}
 class PhpExtension extends ValetProMaxFacade
 {
 }
