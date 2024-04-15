@@ -387,9 +387,9 @@ class Elasticsearch extends AbstractDockerService
      */
     public function enforcePlugins(string $version, bool $onlyDefaults = true): void
     {
-        info("[OPENSEARCH-PLUGINS] Enforcing plugins for " . $version);
+        info("Enforcing default plugins for " . $version);
         $pluginBinary = BREW_PREFIX . static::OPENSEARCH_PLUGIN_BIN;
-        $pluginBinaryActualPath = $this->files->readLink($pluginBinary);
+        $pluginBinaryActualPath = $this->files->readLink($pluginBinary); //@todo linking opensearch while switching
         $currentVersion = preg_replace(
             '/\/([0-9]+)(?:.)([0-9]+)(?:.)([0-9+])\//i',
             '$1.$2.$3',
