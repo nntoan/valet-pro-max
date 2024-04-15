@@ -34,7 +34,7 @@ jobs:
       - name: '[INSTALL] Composer install'
         run: composer install --no-dev --no-interaction --prefer-dist
       - name: '[INSTALL] Valet install'
-        run: ./valet-plus install
+        run: ./valet-pro install
 
       - name: '[TEST] Nginx'
         run: |

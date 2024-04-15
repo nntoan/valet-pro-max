@@ -388,6 +388,9 @@ class Elasticsearch extends AbstractDockerService
     {
         info("[OPENSEARCH-PLUGINS] Enforcing plugins for " . $version);
         $pluginBinary = BREW_PREFIX . static::OPENSEARCH_PLUGIN_BIN;
+        $pluginBinaryActualPath = $this->files->readLink($pluginBinary);
+        $currentVersion = preg_replace('/\/([0-9]+)(?:.)([0-9]+)(?:.)([0-9+])\//i', '$1.$2.$3', $pluginBinaryActualPath);
+
         foreach (self::OPENSEARCH_PLUGINS as $plugin => $settings) {
             if ($onlyDefaults && $settings['default'] !== true) {
                 continue;
@@ -396,7 +399,7 @@ class Elasticsearch extends AbstractDockerService
             $pluginPath = BREW_PREFIX . sprintf(static::OPENSEARCH_PLUGIN_PATH, $plugin);
             $resolvedPluginFiles = $this->files->scandir($pluginPath);
             foreach ($resolvedPluginFiles as $file) {
-                if (strpos($file, $plugin) !== false && strpos($file, $version) === false) {
+                if (str_contains($file, $plugin) && !str_contains($file, $currentVersion)) {
                     $this->cli->quietlyAsUser($pluginBinary . ' remove ' . $plugin);
                     $this->cli->quietlyAsUser($pluginBinary . ' install ' . $plugin);
                 }
