@@ -118,6 +118,7 @@ class PeclCustom extends AbstractPecl
         }
 
         $this->install($extension, $version);
+        $this->enableExtension($extension);
 
         return true;
     }
