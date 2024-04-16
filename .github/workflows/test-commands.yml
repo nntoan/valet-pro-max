@@ -80,7 +80,7 @@ jobs:
 
       - name: '[TEST] PHP switch'
         run: |
-          ./valet-pro use ${{matrix.php}}
+          ./valet-pro use ${{matrix.php}} --force
           php -v | grep ${{matrix.php}}
 
       - name: '[TEST] xdebug on and off'
