@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Lotus\ValetProMax;
 
 use DomainException;
+use Lotus\ValetProMax\Extended\Brew;
 use Lotus\ValetProMax\Extended\Site;
-use Valet\Brew;
 use Valet\CommandLine;
 use Valet\Filesystem;
 
@@ -44,7 +44,7 @@ class Elasticsearch extends AbstractDockerService
     /** @var string */
     protected const ES_DEFAULT_VERSION = 'opensearch@1';
     /** @var string[] */
-    protected const ES_SUPPORTED_VERSIONS = [
+    public const ES_SUPPORTED_VERSIONS = [
         'opensearch',
         'opensearch@1',
         'elasticsearch6',
@@ -52,18 +52,18 @@ class Elasticsearch extends AbstractDockerService
         'elasticsearch8'
     ];
     /** @var string[] */
-    protected const ES_DOCKER_VERSIONS = [
+    public const ES_DOCKER_VERSIONS = [
         'elasticsearch6',
         'elasticsearch7',
         'elasticsearch8'
     ];
     /** @var string[] */
-    protected const ES_EOL_VERSIONS = [
+    public const ES_EOL_VERSIONS = [
         'opensearch@1',
         'elasticsearch@6'
     ];
     /** @var string[] */
-    protected const ES_MAPPING_VERSIONS = [
+    public const ES_MAPPING_VERSIONS = [
         'opensearch@1' => 'opensearch@1',
         'opensearch@2' => 'opensearch',
         'elasticsearch@6' => 'elasticsearch6',
@@ -72,7 +72,7 @@ class Elasticsearch extends AbstractDockerService
     ];
 
     /** @var string[] */
-    protected $taps = [
+    public $taps = [
         'isaaceindhoven/opensearch-maintenance',
     ];
 
@@ -187,16 +187,7 @@ class Elasticsearch extends AbstractDockerService
      */
     public function useVersion($version = self::ES_DEFAULT_VERSION, $tld = 'test')
     {
-        $version = $this->normalizeEsVersion($version);
-
-        if (!$this->isSupportedVersion($version)) {
-            throw new DomainException(
-                sprintf(
-                    'Invalid Elasticsearch version given. Available versions: %s',
-                    implode(', ', static::ES_SUPPORTED_VERSIONS)
-                )
-            );
-        }
+        $version = $this->validateRequestedVersion($version);
 
         $currentVersion = $this->getCurrentVersion();
         // If the requested version equals that of the current running version, do not switch.
@@ -209,6 +200,16 @@ class Elasticsearch extends AbstractDockerService
             // Stop current version.
             $this->stop($currentVersion);
         }
+
+        // Unlink the current global OpenSearch if there is one installed
+        if ($this->brew->hasLinkedOpenSearch()) {
+            $currentVersion = $this->brew->getLinkedOpenSearchFormula();
+            info(sprintf('Unlinking current version: %s', $currentVersion));
+            $this->brew->unlink($currentVersion);
+        }
+
+        info(sprintf('Linking new version: %s', $version));
+        $this->brew->link($version, true);
 
         $this->install($version, $tld);
     }
@@ -273,16 +274,7 @@ class Elasticsearch extends AbstractDockerService
      */
     public function install($version = self::ES_DEFAULT_VERSION, $tld = 'test')
     {
-        $version = $this->normalizeEsVersion($version);
-
-        if (!$this->isSupportedVersion($version)) {
-            throw new DomainException(
-                sprintf(
-                    'Invalid Elasticsearch version given. Available versions: %s',
-                    implode(', ', static::ES_SUPPORTED_VERSIONS)
-                )
-            );
-        }
+        $version = $this->validateRequestedVersion($version);
 
         if (!$this->isDockerVersion($version)) {
             // For Docker versions we don't need to anything here.
@@ -421,13 +413,40 @@ class Elasticsearch extends AbstractDockerService
      */
     public function normalizeEsVersion(?string $version): string
     {
-        $versionNumber = preg_replace('/(?:(elasticsearch|opensearch)@?)?([0-9+])/i', '$2', (string)$version);
+        $versionNumber = (int)preg_replace('/(?:(elasticsearch|opensearch)@?)?([0-9+])/i', '$2', (string)$version);
 
-        $normaliseVersion = match ($versionNumber) {
-            '1', '2' => 'opensearch@' . $versionNumber,
-            '6', '7', '8' => 'elasticsearch@' . $versionNumber
-        };
+        if ($versionNumber > 0) {
+            $normaliseVersion = match ($versionNumber) {
+                1, 2 => 'opensearch@' . $versionNumber,
+                6, 7, 8 => 'elasticsearch@' . $versionNumber
+            };
 
-        return static::ES_MAPPING_VERSIONS[$normaliseVersion];
+            return static::ES_MAPPING_VERSIONS[$normaliseVersion];
+        }
+
+        return $version;
+    }
+
+    /**
+     * Validate the requested version to be sure we can support it.
+     */
+    public function validateRequestedVersion(string $version): string
+    {
+        if (is_null($version)) {
+            throw new DomainException("Please specify a ElasticSearch version (try something like 'opensearch@1')");
+        }
+
+        $version = $this->normalizeEsVersion($version);
+
+        if (!$this->isSupportedVersion($version)) {
+            throw new DomainException(
+                sprintf(
+                    'Invalid Elasticsearch version given. Available versions: %s',
+                    implode(', ', static::ES_SUPPORTED_VERSIONS)
+                )
+            );
+        }
+
+        return $version;
     }
 }

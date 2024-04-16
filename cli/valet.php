@@ -8,7 +8,6 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
-
 use function Valet\info;
 use function Valet\output;
 use function Valet\table;
@@ -81,6 +80,8 @@ $app
                 Binary::installBinary($binary);
             }
         }
+
+        Valet::symlinkToUsersBin();
 
         info("\nValet <options=bold,underscore>Pro Max</> installed successfully!");
     })
