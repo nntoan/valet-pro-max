@@ -201,15 +201,19 @@ class Elasticsearch extends AbstractDockerService
             $this->stop($currentVersion);
         }
 
-        // Unlink the current global OpenSearch if there is one installed
-        if ($this->brew->hasLinkedOpenSearch()) {
-            $currentVersion = $this->brew->getLinkedOpenSearchFormula();
-            info(sprintf('Unlinking current version: %s', $currentVersion));
-            $this->brew->unlink($currentVersion);
-        }
+        if (!$this->isDockerVersion($version)) {
+            $this->brew->ensureInstalled($version, [], $this->taps);
 
-        info(sprintf('Linking new version: %s', $version));
-        $this->brew->link($version, true);
+            // Unlink the current global OpenSearch if there is one installed
+            if ($this->brew->hasLinkedOpenSearch()) {
+                $currentVersion = $this->brew->getLinkedOpenSearchFormula();
+                info(sprintf('Unlinking current version: %s', $currentVersion));
+                $this->brew->unlink($currentVersion);
+            }
+
+            info(sprintf('Linking new version: %s', $version));
+            $this->brew->link($version, true);
+        }
 
         $this->install($version, $tld);
     }
