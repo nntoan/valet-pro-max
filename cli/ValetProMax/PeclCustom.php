@@ -354,6 +354,7 @@ class PeclCustom extends AbstractPecl
     /**
      * Replace all definitions of the .so file to the given extension within the php.ini file.
      *
+     * @deprecated
      * @param $extension
      *    The extension key name.
      */
@@ -371,6 +372,7 @@ class PeclCustom extends AbstractPecl
     /**
      * Replace all definitions of the .so file to the given extension within the php.ini file.
      *
+     * @deprecated
      * @param $extension
      *    The extension key name.
      */
@@ -389,6 +391,7 @@ class PeclCustom extends AbstractPecl
      * should always use this method before saving the php.ini file. This method makes sure that .so definitions within
      * the php.ini file are always ordered correctly.
      *
+     * @deprecated
      * @param $phpIniPath
      *    The path to the php.ini file.
      * @param $phpIniFile
