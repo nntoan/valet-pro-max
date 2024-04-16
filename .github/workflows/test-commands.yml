@@ -11,7 +11,7 @@ jobs:
     # Build on Monterey and later Ventura (Not public released yet: https://github.com/actions/runner-images)
     strategy:
       matrix:
-        os: [macos-12]
+        os: [macos-12, macos-14]
 #        php: ['8.3', '8.2', '8.1', '8.0', '7.4', '7.3', '7.2', '7.1']
         php: ['8.2']
     runs-on: ${{matrix.os}}
@@ -43,6 +43,8 @@ jobs:
           rm -f /usr/local/bin/python3.12 || true
           rm -f /usr/local/bin/python3-config || true
           rm -f /usr/local/bin/python3.12-config || true
+          brew unlink php
+          brew link --overwrite php@8.1 --force
 
       - name: '[CACHE] Handle brew deps'
         uses: actions/cache@v4.0.0
