@@ -31,16 +31,25 @@ jobs:
           coverage: none
 
       - name: '[INSTALL] Brew'
-        run: brew cleanup
+        run: |
+          brew cleanup
+          # Temporary fix, see https://github.com/actions/setup-python/issues/577
+          rm -f /usr/local/bin/2to3 || true
+          rm -f /usr/local/bin/2to3-3.12 || true
+          rm -f /usr/local/bin/idle3 || true
+          rm -f /usr/local/bin/idle3.12 || true
+          rm -f /usr/local/bin/pydoc3 || true
+          rm -f /usr/local/bin/pydoc3.12 || true
+          rm -f /usr/local/bin/python3 || true
+          rm -f /usr/local/bin/python3.12 || true
+          rm -f /usr/local/bin/python3-config || true
+          rm -f /usr/local/bin/python3.12-config || true
 
       - name: '[INSTALL] Composer install'
         run: composer install --no-dev --no-interaction --prefer-dist
 
       - name: '[INSTALL] Valet install'
-        run: |
-          brew install python@3 || true
-          brew link --overwrite python@3
-          ./valet-pro install
+        run: ./valet-pro install
 
       - name: '[TEST] Nginx'
         run: |
