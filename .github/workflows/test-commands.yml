@@ -30,9 +30,8 @@ jobs:
           tools: composer:v2
           coverage: none
 
-      - name: '[INSTALL] Brew'
+      - name: '[INSTALL] Brew setup'
         run: |
-          brew cleanup
           # Temporary fix, see https://github.com/actions/setup-python/issues/577
           rm -f /usr/local/bin/2to3 || true
           rm -f /usr/local/bin/2to3-3.12 || true
@@ -44,6 +43,23 @@ jobs:
           rm -f /usr/local/bin/python3.12 || true
           rm -f /usr/local/bin/python3-config || true
           rm -f /usr/local/bin/python3.12-config || true
+
+      - name: '[CACHE] Handle brew deps'
+        uses: actions/cache@v4.0.0
+        with:
+          # Paths to cache:
+          # /usr/local/Homebrew - installation folder of Homebrew
+          # /usr/local/Cellar - installation folder of Homebrew formulae
+          # /usr/local/Frameworks, /usr/local/bin, /usr/local/opt - contain (links to) binaries installed by Homebrew formulae
+          # /usr/local/lib/python3.12 - Python3 packages installation
+          path: |
+            /usr/local/Homebrew
+            /usr/local/Cellar
+            /usr/local/Frameworks
+            /usr/local/bin
+            /usr/local/opt
+            /usr/local/lib/python3.12
+          key: macos-12-build-cache-${{ hashFiles('./valet-pro') }}-v2
 
       - name: '[INSTALL] Composer install'
         run: composer install --no-dev --no-interaction --prefer-dist
