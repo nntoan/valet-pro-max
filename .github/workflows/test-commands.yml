@@ -29,12 +29,18 @@ jobs:
           ini-values: error_reporting=E_ALL, max_execution_time=-1, memory_limit=512M
           tools: composer:v2
           coverage: none
+
       - name: '[INSTALL] Brew'
         run: brew cleanup
+
       - name: '[INSTALL] Composer install'
         run: composer install --no-dev --no-interaction --prefer-dist
+
       - name: '[INSTALL] Valet install'
-        run: ./valet-pro install
+        run: |
+          brew install python@3 || true
+          brew link --overwrite python@3
+          ./valet-pro install
 
       - name: '[TEST] Nginx'
         run: |
@@ -51,10 +57,12 @@ jobs:
         run: |
           ./valet-pro use ${{matrix.php}}
           php -v | grep ${{matrix.php}}
+
       - name: '[TEST] xdebug on and off'
         run: |
           ./valet-pro xdebug on
           ./valet-pro xdebug off
+
       - name: '[TEST] memcache on and off'
         run: |
           ./valet-pro memcache on
