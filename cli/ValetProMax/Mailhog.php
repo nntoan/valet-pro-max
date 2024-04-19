@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Lotus\ValetProMax;
 
 use Illuminate\Container\Container;
+use Lotus\ValetProMax\Event\DataEvent;
+use Lotus\ValetProMax\Extended\Site;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -12,8 +14,6 @@ use Valet\Brew;
 use Valet\CommandLine;
 use Valet\Configuration;
 use Valet\Filesystem;
-use Lotus\ValetProMax\Event\DataEvent;
-use Lotus\ValetProMax\Extended\Site;
 
 use function Valet\info;
 
@@ -111,6 +111,8 @@ class Mailhog extends AbstractService
             return;
         }
 
+        info('Linking MailHog...');
+        $this->brew->link(static::SERVICE_NAME, true);
         $this->brew->restartService(static::SERVICE_NAME);
     }
 
