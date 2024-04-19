@@ -59,7 +59,7 @@ jobs:
             /usr/local/bin
             /usr/local/opt
             /usr/local/lib/python3.12
-          key: macos-12-build-cache-${{ hashFiles('./valet-pro') }}-v2
+          key: ${{matrix.os}}-build-cache-${{ hashFiles('./valet-pro') }}-v2
 
       - name: '[INSTALL] Composer install'
         run: composer install --no-dev --no-interaction --prefer-dist
