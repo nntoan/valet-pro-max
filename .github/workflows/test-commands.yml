@@ -43,8 +43,6 @@ jobs:
           rm -f /usr/local/bin/python3.12 || true
           rm -f /usr/local/bin/python3-config || true
           rm -f /usr/local/bin/python3.12-config || true
-          brew unlink php
-          brew link --overwrite php@8.1 --force
 
       - name: '[CACHE] Handle brew deps'
         uses: actions/cache@v4.0.0
@@ -82,6 +80,8 @@ jobs:
 
       - name: '[TEST] PHP switch'
         run: |
+          brew unlink php || true
+          brew link --overwrite php@8.1 --force || true
           ./valet-pro use ${{matrix.php}} --force
           php -v | grep ${{matrix.php}}
 
