@@ -7,10 +7,10 @@ use DomainException;
 class Opensearch
 {
     const NGINX_CONFIGURATION_STUB = __DIR__ . '/../stubs/opensearch.conf';
-    const NGINX_CONFIGURATION_PATH = 'etc/nginx/valet/opensearch.conf';
+    const NGINX_CONFIGURATION_PATH = '/etc/nginx/valet/opensearch.conf';
 
-    const ES_CONFIG_YAML          = '/etc/opensearch/opensearch.yml';
-    const ES_CONFIG_DATA_PATH     = 'path.data';
+    const ES_CONFIG_YAML = '/etc/opensearch/opensearch.yml';
+    const ES_CONFIG_DATA_PATH = 'path.data';
     const ES_CONFIG_DATA_BASEPATH = '/var/lib/';
 
     const ES_FORMULA_PREFIX = 'isaaceindhoven/opensearch-maintenance/';
@@ -19,11 +19,11 @@ class Opensearch
     const OPENSEARCH_V2_VERSION = '2';
 
     const SUPPORTED_OS_FORMULAE = [
-        self::OPENSEARCH_V1_VERSION => self::ES_FORMULA_NAME .'@'. self::OPENSEARCH_V1_VERSION,
-        self::OPENSEARCH_V2_VERSION => self::ES_FORMULA_NAME
+        self::OPENSEARCH_V1_VERSION => self::ES_FORMULA_NAME . '@' . self::OPENSEARCH_V1_VERSION,
+        self::OPENSEARCH_V2_VERSION => self::ES_FORMULA_NAME,
     ];
 
-    const ISAACINDHOVEN_OS_BREW_TAP = 'isaaceindhoven/opensearch-maintenance';
+    const OPENSEARCH_MAINTENANCE_TAP = 'nntoan/opensearch-maintenance';
 
     // Plugins.
     public const ANALYSIS_PHONETIC_PLUGIN = 'analysis-phonetic';
@@ -31,56 +31,36 @@ class Opensearch
 
     const OPENSEARCH_PLUGINS = [
         self::ANALYSIS_PHONETIC_PLUGIN => [
-            'default' => true
+            'default' => true,
         ],
         self::ANALYSIS_ICU_EXTENSION => [
-            'default' => true
-        ]
+            'default' => true,
+        ],
     ];
 
+    /**
+     * @var string[]
+     */
     protected $versions;
 
-    /**
-     * @var Brew
-     */
-    public $brew;
-    /**
-     * @var CommandLine
-     */
-    public $cli;
-    /**
-     * @var Filesystem
-     */
-    public $files;
-    /**
-     * @var Configuration
-     */
-    public $configuration;
-    /**
-     * @var Site
-     */
-    public $site;
-    /**
-     * @var PhpFpm
-     */
-    public $phpFpm;
-    /**
-     * @var Architecture
-     */
-    private $architecture;
+    public Brew $brew;
+    public CommandLine $cli;
+    public Filesystem $files;
+    public Configuration $configuration;
+    public Site $site;
+    public PhpFpm $phpFpm;
 
     /**
      * Elasticsearch constructor.
-     * @param Architecture $architecture
-     * @param Brew $brew
-     * @param CommandLine $cli
-     * @param Filesystem $files
-     * @param Configuration $configuration
-     * @param Site $site
-     * @param PhpFpm $phpFpm
+     *
+     * @param  Brew  $brew
+     * @param  CommandLine  $cli
+     * @param  Filesystem  $files
+     * @param  Configuration  $configuration
+     * @param  Site  $site
+     * @param  PhpFpm  $phpFpm
      */
     public function __construct(
-        Architecture $architecture,
         Brew $brew,
         CommandLine $cli,
         Filesystem $files,
@@ -88,25 +68,25 @@ class Opensearch
         Site $site,
         PhpFpm $phpFpm
     ) {
-        $this->cli           = $cli;
-        $this->brew          = $brew;
-        $this->site          = $site;
-        $this->files         = $files;
+        $this->cli = $cli;
+        $this->brew = $brew;
+        $this->site = $site;
+        $this->files = $files;
         $this->configuration = $configuration;
-        $this->phpFpm        = $phpFpm;
-        $this->architecture = $architecture;
+        $this->phpFpm = $phpFpm;
     }
 
     /**
      * Install the service.
      *
-     * @param string $version
+     * @param  string  $version
+     *
      * @return void
      */
     public function install($version = null)
     {
         $versions = $this->getVersions();
-        $version  = ($version ? $version : $this->getLatestVersion());
+        $version = ($version ? $version : $this->getLatestVersion());
 
         if (!$this->isSupportedVersion($version)) {
             warning('The OpenSearch version you\'re installing is not supported.');
@@ -122,11 +102,11 @@ class Opensearch
         }
 
         // Tap
-        if (!$this->brew->hasTap(self::ISAACINDHOVEN_OS_BREW_TAP)) {
-            info("[BREW TAP] Installing " . self::ISAACINDHOVEN_OS_BREW_TAP);
-            $this->brew->tap(self::ISAACINDHOVEN_OS_BREW_TAP);
+        if (!$this->brew->hasTap(self::OPENSEARCH_MAINTENANCE_TAP)) {
+            info("[BREW TAP] Installing " . self::OPENSEARCH_MAINTENANCE_TAP);
+            $this->brew->tap(self::OPENSEARCH_MAINTENANCE_TAP);
         } else {
-            info("[BREW TAP] " . self::ISAACINDHOVEN_OS_BREW_TAP . " already installed");
+            info("[BREW TAP] " . self::OPENSEARCH_MAINTENANCE_TAP . " already installed");
         }
 
         // Install dependencies
@@ -141,7 +121,8 @@ class Opensearch
     /**
      * Returns wether Elasticsearch is installed.
      *
-     * @param string $version
+     * @param  string  $version
+     *
      * @return bool
      */
     public function installed($version = null)
@@ -150,7 +131,7 @@ class Opensearch
         //  return when current version (7.10) in Brew has the same formula now as 5.6 at the time.
 
         $versions = $this->getVersions();
-        $majors   = ($version ? [$version] : array_keys($versions));
+        $majors = ($version ? [$version] : array_keys($versions));
         foreach ($majors as $version) {
             if ($this->brew->installed($versions[$version])) {
                 return $version;
@@ -163,7 +144,8 @@ class Opensearch
     /**
      * Restart the service.
      *
-     * @param string $version
+     * @param  string  $version
+     *
      * @return void
      */
     public function restart($version = null)
@@ -187,7 +169,8 @@ class Opensearch
     /**
      * Stop all OpenSearch service.
      *
-     * @param string $version
+     * @param  string  $version
+     *
      * @return void
      */
     public function stop($version = null)
@@ -223,7 +206,7 @@ class Opensearch
     public function updateDomain($domain)
     {
         $this->files->putAsUser(
-            $this->architecture->getBrewPath() . '/' . self::NGINX_CONFIGURATION_PATH,
+            BREW_PREFIX . self::NGINX_CONFIGURATION_PATH,
             str_replace(
                 ['VALET_DOMAIN'],
                 [$domain],
@@ -235,13 +218,13 @@ class Opensearch
     public function enforcePlugins($version, $onlyDefaults = true)
     {
         info("[PLUGINS] Enforcing plugins for opensearch@" . $version);
-        $pluginBinary = $this->architecture->getBrewPath() . '/bin/' . self::ES_FORMULA_NAME . '-plugin ';
+        $pluginBinary = BREW_PREFIX . '/bin/' . self::ES_FORMULA_NAME . '-plugin ';
         foreach (self::OPENSEARCH_PLUGINS as $plugin => $settings) {
             if ($onlyDefaults && $settings['default'] !== true) {
                 continue;
             }
 
-            $pluginPath = $this->architecture->getBrewPath() . '/var/' . self::ES_FORMULA_NAME . '/plugins/' . $plugin;
+            $pluginPath = BREW_PREFIX . '/var/' . self::ES_FORMULA_NAME . '/plugins/' . $plugin;
             $resolvedPluginFiles = $this->files->scandir($pluginPath);
             foreach ($resolvedPluginFiles as $file) {
                 if (strpos($file, $plugin) !== false && strpos($file, $version) === false) {
@@ -261,7 +244,12 @@ class Opensearch
     {
         $currentVersion = $this->getCurrentVersion();
         if (!$this->isSupportedVersion($version)) {
-            throw new DomainException("This version of OpenSearch is not supported. The following versions are supported: " . implode(', ', array_keys($this->getVersions())) . ($currentVersion ? "\nCurrent version is " . $currentVersion : ""));
+            throw new DomainException(
+                "This version of OpenSearch is not supported. The following versions are supported: " . implode(
+                    ', ',
+                    array_keys($this->getVersions())
+                ) . ($currentVersion ? "\nCurrent version is " . $currentVersion : "")
+            );
         }
 
         // If the requested version equals that of the current running version, do not switch.
@@ -272,7 +260,7 @@ class Opensearch
         }
 
         // Make sure the requested version is installed.
-        $versions  = $this->getVersions();
+        $versions = $this->getVersions();
         $installed = $this->installed($version);
         if (!$installed) {
             $this->brew->ensureInstalled($versions[$version]);
@@ -290,10 +278,10 @@ class Opensearch
         // switching or even break OpenSearch (it can't start properly with indices from another version).
         // todo; hmmm maybe we should do this also when installing?
         if (extension_loaded('yaml')) {
-            $config = yaml_parse_file($this->architecture->getBrewPath() . self::ES_CONFIG_YAML);
-            $openSearchBasePath = $this->architecture->getBrewPath() . self::ES_CONFIG_DATA_BASEPATH;
+            $config = yaml_parse_file(BREW_PREFIX . self::ES_CONFIG_YAML);
+            $openSearchBasePath = BREW_PREFIX . self::ES_CONFIG_DATA_BASEPATH;
             $config[self::ES_CONFIG_DATA_PATH] = $openSearchBasePath . self::ES_FORMULA_NAME . '@' . $version . '/';
-            yaml_emit_file($this->architecture->getBrewPath() . self::ES_CONFIG_YAML, $config);
+            yaml_emit_file(BREW_PREFIX . self::ES_CONFIG_YAML, $config);
         } else {
             // Install PHP dependencies through installation of PHP.
             $this->phpFpm->install();
@@ -325,6 +313,7 @@ class Opensearch
      * Get the formula name for a OpenSearch version.
      *
      * @param $version
+     *
      * @return string Formula name
      */
     public function getFormulaName($version)
@@ -341,7 +330,7 @@ class Opensearch
     {
 
         $currentVersion = false;
-        $versions       = $this->getVersions();
+        $versions = $this->getVersions();
 
         foreach ($versions as $major => $formula) {
             if ($this->brew->isStartedService($formula)) {
@@ -350,7 +339,7 @@ class Opensearch
         }
 
         if ($currentVersion === false) {
-            $osPath = $this->architecture->getBrewPath() . '/bin/opensearch';
+            $osPath = BREW_PREFIX . '/bin/opensearch';
             if (!$this->files->isLink($osPath)) {
                 throw new DomainException("Unable to determine linked OpenSearch.");
             }
@@ -394,6 +383,7 @@ class Opensearch
      * Returns wether the version is supported in Brew.
      *
      * @param $version
+     *
      * @return bool
      */
     public function isSupportedVersion($version)
@@ -406,6 +396,7 @@ class Opensearch
      *
      * @param $version
      * @param $currentVersion
+     *
      * @return bool
      */
     private function linkOS($version, $currentVersion = null)
@@ -449,15 +440,21 @@ class Opensearch
      * Unlink a OpenSearch version, removing the binary symlink.
      *
      * @param $version
+     *
      * @return bool
      */
     private function unlinkOS($version)
     {
         $isUnlinked = true;
         info("[opensearch@$version] Unlinking");
-        output($this->cli->runAsUser('brew unlink ' . self::SUPPORTED_OS_FORMULAE[$version], function () use (&$isUnlinked) {
-            $isUnlinked = false;
-        }));
+        output(
+            $this->cli->runAsUser(
+                'brew unlink ' . self::SUPPORTED_OS_FORMULAE[$version],
+                function () use (&$isUnlinked) {
+                    $isUnlinked = false;
+                }
+            )
+        );
         if ($isUnlinked === false) {
             warning(
                 "Could not unlink OpenSearch version!" . PHP_EOL .

@@ -6,14 +6,14 @@ use DomainException;
 
 class Brew
 {
-    public $cli;
-    public $files;
+    public CommandLine $cli;
+    public Filesystem $files;
 
     /**
      * Create a new Brew instance.
      *
-     * @param  CommandLine $cli
-     * @param  Filesystem $files
+     * @param  CommandLine  $cli
+     * @param  Filesystem  $files
      */
     public function __construct(CommandLine $cli, Filesystem $files)
     {
@@ -24,7 +24,8 @@ class Brew
     /**
      * Determine if the given formula is installed.
      *
-     * @param  string $formula
+     * @param  string  $formula
+     *
      * @return bool
      */
     public function installed($formula)
@@ -64,9 +65,10 @@ class Brew
     /**
      * Ensure that the given formula is installed.
      *
-     * @param  string $formula
-     * @param  array $options
-     * @param  array $taps
+     * @param  string  $formula
+     * @param  array  $options
+     * @param  array  $taps
+     *
      * @return void
      */
     public function ensureInstalled($formula, $options = [], $taps = [])
@@ -79,9 +81,10 @@ class Brew
     /**
      * Ensure that the given formula is uninstalled.
      *
-     * @param  string $formula
-     * @param  array $options
-     * @param  array $taps
+     * @param  string  $formula
+     * @param  array  $options
+     * @param  array  $taps
+     *
      * @return void
      */
     public function ensureUninstalled($formula, $options = [], $taps = [])
@@ -94,9 +97,10 @@ class Brew
     /**
      * Install the given formula and throw an exception on failure.
      *
-     * @param  string $formula
-     * @param  array $options
-     * @param  array $taps
+     * @param  string  $formula
+     * @param  array  $options
+     * @param  array  $taps
+     *
      * @return void
      */
     public function installOrFail($formula, $options = [], $taps = [])
@@ -120,9 +124,10 @@ class Brew
     /**
      * Uninstall the given formula and throw an exception on failure.
      *
-     * @param  string $formula
-     * @param  array $options
-     * @param  array $taps
+     * @param  string  $formula
+     * @param  array  $options
+     * @param  array  $taps
+     *
      * @return void
      */
     public function uninstallOrFail($formula, $options = [], $taps = [])
@@ -147,6 +152,7 @@ class Brew
      * Tap the given formulas.
      *
      * @param  dynamic [string]  $formula
+     *
      * @return void
      */
     public function tap($formulas)
@@ -162,6 +168,7 @@ class Brew
      * Untap the given formulas.
      *
      * @param  dynamic [string]  $formula
+     *
      * @return void
      */
     public function unTap($formulas)
@@ -177,6 +184,7 @@ class Brew
      * Check if brew has the given tap.
      *
      * @param $formula
+     *
      * @return bool
      */
     public function hasTap($formula)
@@ -225,12 +233,17 @@ class Brew
      * Checks wether the requested services is running.
      *
      * @param $formula
+     *
      * @return bool
      */
     public function isStartedService($formula)
     {
-        $info = explode(" ", trim(str_replace($formula, "", $this->cli->runAsUser('brew services list | grep ' . $formula))));
+        $info = explode(
+            " ",
+            trim(str_replace($formula, "", $this->cli->runAsUser('brew services list | grep ' . $formula)))
+        );
         $state = array_shift($info);
+
         return in_array($state, ['started', 'unknown', 'error']);
     }
 
@@ -238,6 +251,7 @@ class Brew
      * Returns array with formulae available in Brew.
      *
      * @param $formula
+     *
      * @return string[]
      */
     public function getFormulae($formula)
@@ -254,6 +268,7 @@ class Brew
      * Returns array with available formulae in Brew and their stable and major version.
      *
      * @param $formula
+     *
      * @return array
      */
     public function getFormulaVersions($formula)
@@ -262,13 +277,16 @@ class Brew
 
         $versions = [];
         foreach ($formulae as $_formula) {
-            $stable  = trim($this->cli->runAsUser("brew info $_formula --json=v1 | jq '.[] | .versions | .stable'"), " \t\n\r\0\x0B\"");
+            $stable = trim(
+                $this->cli->runAsUser("brew info $_formula --json=v1 | jq '.[] | .versions | .stable'"),
+                " \t\n\r\0\x0B\""
+            );
             $version = explode('.', $stable);
-            $major   = reset($version);
+            $major = reset($version);
 
             $versions[$major] = [
-                'stable'  => $stable,
-                'major'   => $major,
+                'stable' => $stable,
+                'major' => $major,
                 'formula' => $_formula,
             ];
         }

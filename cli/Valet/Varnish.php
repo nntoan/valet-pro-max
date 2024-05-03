@@ -4,19 +4,19 @@ namespace Valet;
 
 class Varnish extends AbstractService
 {
-    public $brew;
-    public $cli;
-    public $files;
-    public $site;
+    public Brew $brew;
+    public CommandLine $cli;
+    public Filesystem $files;
+    public Site $site;
 
     /**
      * Create a new instance.
      *
-     * @param  Brew          $brew
-     * @param  CommandLine   $cli
-     * @param  Filesystem    $files
-     * @param  Configuration $configuration
-     * @param  Site          $site
+     * @param  Brew  $brew
+     * @param  CommandLine  $cli
+     * @param  Filesystem  $files
+     * @param  Configuration  $configuration
+     * @param  Site  $site
      */
     public function __construct(
         Brew $brew,
@@ -25,9 +25,9 @@ class Varnish extends AbstractService
         Configuration $configuration,
         Site $site
     ) {
-        $this->cli   = $cli;
-        $this->brew  = $brew;
-        $this->site  = $site;
+        $this->cli = $cli;
+        $this->brew = $brew;
+        $this->site = $site;
         $this->files = $files;
         parent::__construct($configuration);
     }

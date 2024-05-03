@@ -1,8 +1,11 @@
 <?php
+
 namespace Valet;
 
 class Logs
 {
+    private CommandLine $cli;
+
     public function __construct(CommandLine $cli)
     {
         $this->cli = $cli;

@@ -7,7 +7,7 @@ use Httpful\Request;
 
 class Ngrok
 {
-    public $tunnelsEndpoint = 'http://127.0.0.1:4040/api/tunnels';
+    public string $tunnelsEndpoint = 'http://127.0.0.1:4040/api/tunnels';
 
     /**
      * Get the current tunnel URL from the Ngrok API.
@@ -34,6 +34,7 @@ class Ngrok
      * Find the HTTP tunnel URL from the list of tunnels.
      *
      * @param  array  $tunnels
+     *
      * @return string|null
      */
     public function findHttpTunnelUrl($tunnels)

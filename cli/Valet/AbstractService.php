@@ -7,13 +7,13 @@ abstract class AbstractService
     const STATE_DISABLED = false;
     const STATE_ENABLED = true;
 
-    public $configuration;
-    public $configClassName;
+    public Configuration $configuration;
+    public string $configClassName;
 
     /**
      * AbstractService constructor.
      *
-     * @param Configuration $configuration
+     * @param  Configuration  $configuration
      */
     public function __construct(Configuration $configuration)
     {
@@ -47,7 +47,7 @@ abstract class AbstractService
     public function isEnabled()
     {
         $config = $this->configuration->read();
-        $name   = $this->getConfigClassName();
+        $name = $this->getConfigClassName();
 
         return (isset($config[$name]) && isset($config[$name]['enabled']) && $config[$name]['enabled'] == self::STATE_ENABLED);
     }
@@ -59,8 +59,8 @@ abstract class AbstractService
      */
     public function setEnabled($state)
     {
-        $config        = $this->configuration->read();
-        $name          = $this->getConfigClassName();
+        $config = $this->configuration->read();
+        $name = $this->getConfigClassName();
         if (!isset($config[$name])) {
             $config[$name] = [];
         }

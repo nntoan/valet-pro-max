@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
-<ruleset name="VALET-PLUS RULESET">
+<ruleset name="VALET-PRO-MAX RULESET">
 
-    <description>Valet-plus coding standard</description>
+    <description>Valet-Pro-Max coding standard</description>
     ​
     <arg name="basepath" value="."/>
     <arg name="colors" />

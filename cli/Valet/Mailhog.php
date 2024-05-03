@@ -5,52 +5,32 @@ namespace Valet;
 class Mailhog extends AbstractService
 {
     const NGINX_CONFIGURATION_STUB = __DIR__ . '/../stubs/mailhog.conf';
-    const NGINX_CONFIGURATION_PATH = 'etc/nginx/valet/mailhog.conf';
+    const NGINX_CONFIGURATION_PATH = '/etc/nginx/valet/mailhog.conf';
+
+    public Brew $brew;
+    public CommandLine $cli;
+    public Filesystem $files;
+    public Site $site;
 
     /**
-     * @var Brew
-     */
-    public $brew;
-    /**
-     * @var CommandLine
-     */
-    public $cli;
-    /**
-     * @var Filesystem
-     */
-    public $files;
-    /**
-     * @var Site
-     */
-    public $site;
-    /**
-     * @var Architecture
-     */
-    private $architecture;
-
-    /**
-     * @param Architecture $architecture
-     * @param Brew $brew
-     * @param CommandLine $cli
-     * @param Filesystem $files
-     * @param Configuration $configuration
-     * @param Site $site
+     * @param  Configuration  $configuration
+     * @param  Brew  $brew
+     * @param  CommandLine  $cli
+     * @param  Filesystem  $files
+     * @param  Site  $site
      */
     public function __construct(
-        Architecture $architecture,
+        Configuration $configuration,
         Brew $brew,
         CommandLine $cli,
         Filesystem $files,
-        Configuration $configuration,
         Site $site
     ) {
-        $this->cli   = $cli;
-        $this->brew  = $brew;
-        $this->site  = $site;
-        $this->files = $files;
-        $this->configuration = $configuration;
         parent::__construct($configuration);
-        $this->architecture = $architecture;
+        $this->cli = $cli;
+        $this->brew = $brew;
+        $this->site = $site;
+        $this->files = $files;
     }
 
     /**
@@ -122,7 +102,7 @@ class Mailhog extends AbstractService
     public function updateDomain($domain)
     {
         $this->files->putAsUser(
-            $this->architecture->getBrewPath() . '/' . self::NGINX_CONFIGURATION_PATH,
+            BREW_PREFIX . self::NGINX_CONFIGURATION_PATH,
             str_replace(
                 ['VALET_DOMAIN'],
                 [$domain],

@@ -56,6 +56,9 @@ class RedisTool extends Facade
 class Elasticsearch extends Facade
 {
 }
+class Opensearch extends Facade
+{
+}
 class RabbitMq extends Facade
 {
 }

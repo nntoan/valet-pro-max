@@ -2,7 +2,6 @@
 
 namespace Valet;
 
-use Exception;
 use ValetDriver;
 
 class DevTools
@@ -20,33 +19,27 @@ class DevTools
         self::GEOIP_TOOL,
         self::ZLIB_TOOL,
         self::JQ,
-        self::LIBYAML
+        self::LIBYAML,
     ];
 
-    public $brew;
-    public $cli;
-    public $files;
-    public $configuration;
-    public $site;
-    public $mysql;
-    /**
-     * @var Architecture
-     */
-    private $architecture;
+    public Brew $brew;
+    public CommandLine $cli;
+    public Filesystem $files;
+    public Configuration $configuration;
+    public Site $site;
+    public Mysql $mysql;
 
     /**
      * Create a new Nginx instance.
      *
-     * @param Architecture $architecture
-     * @param Brew $brew
-     * @param CommandLine $cli
-     * @param Filesystem $files
-     * @param Configuration $configuration
-     * @param Site $site
-     * @param Mysql $mysql
+     * @param  Brew  $brew
+     * @param  CommandLine  $cli
+     * @param  Filesystem  $files
+     * @param  Configuration  $configuration
+     * @param  Site  $site
+     * @param  Mysql  $mysql
      */
     public function __construct(
-        Architecture $architecture,
         Brew $brew,
         CommandLine $cli,
         Filesystem $files,
@@ -60,7 +53,6 @@ class DevTools
         $this->files = $files;
         $this->configuration = $configuration;
         $this->mysql = $mysql;
-        $this->architecture = $architecture;
     }
 
     /**
@@ -103,57 +95,6 @@ class DevTools
     {
         $this->cli->passthru('pbcopy < ~/.ssh/id_rsa.pub');
         info('Copied ssh key to your clipboard');
-    }
-
-    public function phpstorm()
-    {
-        info('Opening PHPstorm');
-
-        $this->cli->runAsUser('open -a PhpStorm ./');
-    }
-
-    public function sourcetree()
-    {
-        info('Opening SourceTree');
-        $this->cli->runAsUser('open -a SourceTree ./');
-    }
-
-    public function vscode()
-    {
-        info('Opening Visual Studio Code');
-        $command = false;
-
-        if ($this->files->exists($this->architecture->getBrewPath() . '/bin/code')) {
-            $command = $this->architecture->getBrewPath() . '/bin/code';
-        }
-
-        if ($this->files->exists($this->architecture->getBrewPath() . '/bin/vscode')) {
-            $command = $this->architecture->getBrewPath() . '/bin/vscode';
-        }
-
-        if (!$command) {
-            throw new Exception($this->architecture->getBrewPath() . '/bin/code command not found. Please install it.');
-        }
-
-        $output = $this->cli->runAsUser($command . ' $(git rev-parse --show-toplevel)');
-
-        if (strpos($output, 'fatal: Not a git repository') !== false) {
-            throw new Exception('Could not find git directory');
-        }
-    }
-
-    public function tower()
-    {
-        info('Opening git tower');
-        if (!$this->files->exists('/Applications/Tower.app/Contents/MacOS/gittower')) {
-            throw new Exception('gittower command not found. Please install gittower by following the instructions provided here: https://www.git-tower.com/help/mac/integration/cli-tool');
-        }
-
-        $output = $this->cli->runAsUser('/Applications/Tower.app/Contents/MacOS/gittower $(git rev-parse --show-toplevel)');
-
-        if (strpos($output, 'fatal: Not a git repository') !== false) {
-            throw new Exception('Could not find git directory');
-        }
     }
 
     public function configure()

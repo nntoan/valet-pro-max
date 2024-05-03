@@ -8,8 +8,8 @@ use Exception;
 abstract class AbstractPecl
 {
     // Extension types.
-    const NORMAL_EXTENSION_TYPE = 'extension';
-    const ZEND_EXTENSION_TYPE = 'zend_extension';
+    protected const NORMAL_EXTENSION_TYPE = 'extension';
+    protected const ZEND_EXTENSION_TYPE = 'zend_extension';
 
     /**
      * Shared functionality example:
@@ -26,20 +26,22 @@ abstract class AbstractPecl
      *
      * @formatter:on
      **/
-    const EXTENSIONS = [
+    protected const EXTENSIONS = [
 
     ];
 
-    public $cli;
-    public $files;
+    protected CommandLine $cli;
+    protected Filesystem $files;
+    protected Architecture $architecture;
 
     /**
      * Create a new PECL instance.
      */
-    public function __construct(CommandLine $cli, Filesystem $files)
+    public function __construct(CommandLine $cli, Filesystem $files, Architecture $architecture)
     {
         $this->cli = $cli;
         $this->files = $files;
+        $this->architecture = $architecture;
     }
 
     /**
@@ -47,6 +49,7 @@ abstract class AbstractPecl
      *
      * @param $extension
      *    The extension key name.
+     *
      * @return mixed
      */
     protected function getExtensionType($extension)
@@ -55,6 +58,27 @@ abstract class AbstractPecl
             return $this::EXTENSIONS[$extension]['extension_type'];
         }
         throw new DomainException('extension_type key is required for PECL packages');
+    }
+
+    /**
+     * Get the current PHP conf.d path.
+     *
+     * @return string
+     */
+    public function getPhpConfPath(): string
+    {
+        $phpBinary = str_replace("\n", '', $this->cli->runAsUser('pecl config-get php_bin'));
+
+        return str_replace(
+            "\n",
+            '',
+            $this->cli->runAsUser(
+                sprintf(
+                    '%s --ini | grep "Scan for additional" | cut -d":" -f2 | cut -d" " -f2',
+                    $phpBinary
+                )
+            )
+        );
     }
 
     /**
@@ -94,6 +118,7 @@ abstract class AbstractPecl
         $version = str_replace('PHP Version:', '', $version);
         $version = str_replace(' ', '', $version);
         $version = substr($version, 0, 3);
+
         return $version;
     }
 
@@ -102,6 +127,7 @@ abstract class AbstractPecl
      *
      * @param $extension
      *    The extension key name.
+     *
      * @return bool
      *   True if installed, false if not installed.
      */
@@ -109,6 +135,7 @@ abstract class AbstractPecl
     {
         $alias = $this->getExtensionAlias($extension);
         $extensions = explode("\n", $this->cli->runAsUser("php -m | grep $alias"));
+
         return in_array($alias, $extensions);
     }
 
@@ -124,6 +151,7 @@ abstract class AbstractPecl
         if (strpos($dir, '/Cellar/') !== false) {
             $dir = str_replace('/lib/php/', '/pecl/', $dir);
         }
+        $this->files->ensureDirExists($dir, user());
 
         return $dir;
     }
@@ -133,18 +161,19 @@ abstract class AbstractPecl
      */
     public function uninstallExtensions()
     {
-        throw new \Exception(__METHOD__.' not implemented!');
+        throw new \Exception(__METHOD__ . ' not implemented!');
     }
 
     /**
      * Install all extensions defined in EXTENSIONS.
      *
-     * @param bool $onlyDefaults
+     * @param  bool  $onlyDefaults
+     *
      * @throws Exception if not overridden but used.
      */
     public function installExtensions($onlyDefaults = true)
     {
-        throw new \Exception(__METHOD__.' not implemented!');
+        throw new \Exception(__METHOD__ . ' not implemented!');
     }
 
     /**
@@ -152,13 +181,14 @@ abstract class AbstractPecl
      *
      * @param $extension
      *    The extension key name.
+     *
      * @return bool True if installed, false if not installed.
      * True if installed, false if not installed.
      * @throws Exception if not overridden but used.
      */
     protected function isInstalled($extension)
     {
-        throw new \Exception(__METHOD__.' not implemented!');
+        throw new \Exception(__METHOD__ . ' not implemented!');
     }
 
     /**
@@ -167,11 +197,12 @@ abstract class AbstractPecl
      *
      * @param $extension
      *    The extension key name.
+     *
      * @return string
      * @throws Exception if not overridden but used.
      */
     protected function getExtensionAlias($extension)
     {
-        throw new \Exception(__METHOD__.' not implemented!');
+        throw new \Exception(__METHOD__ . ' not implemented!');
     }
 }

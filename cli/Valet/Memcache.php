@@ -4,11 +4,10 @@ namespace Valet;
 
 class Memcache
 {
-    /** @var PhpExtension */
-    protected $phpExtension;
+    protected PhpExtension $phpExtension;
 
     /**
-     * @param PhpExtension $phpExtension
+     * @param  PhpExtension  $phpExtension
      */
     public function __construct(
         PhpExtension $phpExtension
@@ -18,7 +17,9 @@ class Memcache
 
     /**
      * Install memcache.
+     *
      * @param $phpVersion
+     *
      * @return bool
      */
     public function install($phpVersion)
@@ -37,8 +38,10 @@ class Memcache
 
     /**
      * Uninstall memcache.
+     *
      * @param $phpVersion
      * @param $phpIniConfigPath
+     *
      * @return bool
      */
     public function uninstall($phpVersion, $phpIniConfigPath)

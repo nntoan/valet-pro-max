@@ -15,16 +15,6 @@ class Architecture
     private $brewPath = null;
 
     /**
-     * @var CommandLine
-     */
-    private $cli;
-
-    public function __construct(CommandLine $cli)
-    {
-        $this->cli = $cli;
-    }
-
-    /**
      * @return string
      */
     public function getBrewPath()
@@ -32,6 +22,7 @@ class Architecture
         if ($this->brewPath === null) {
             $this->defineBrewPath();
         }
+
         return $this->brewPath;
     }
 
@@ -40,11 +31,13 @@ class Architecture
      */
     public function isArm64()
     {
-        if (strpos($this->cli->run('uname -m'), self::ARM_64) !== false) {
+        if (strpos(ARCH_NAME, self::ARM_64) !== false) {
             info('ARM Mac detected');
+
             return true;
         }
         info('Intel Mac detected');
+
         return false;
     }
 

@@ -17,11 +17,11 @@ class PhpExtension
         self::XDEBUG_EXTENSION => [
             'default' => false,
             'ini_files' => [
-                '20-xdebug'
-            ]
+                '20-xdebug',
+            ],
         ],
         self::APCU_EXTENSION => [
-            'default' => true
+            'default' => true,
         ],
         self::MEMCACHE_EXTENSION => [
             'default' => false,
@@ -29,26 +29,24 @@ class PhpExtension
             'ini_files' => [
                 '20-igbinary',
                 '20-msgpack',
-                '30-memcached'
-            ]
+                '30-memcached',
+            ],
         ],
         self::YAML_EXTENSION => [
             'default' => true,
             'brew_dependency' => 'libyaml',
             'ini_files' => [
-                '20-apcu'
-            ]
-        ]
+                '20-apcu',
+            ],
+        ],
     ];
 
-    /** @var Brew */
-    protected $brew;
-    /** @var Filesystem */
-    protected $files;
+    protected Brew $brew;
+    protected Filesystem $files;
 
     /**
-     * @param Brew $brew
-     * @param Filesystem $files
+     * @param  Brew  $brew
+     * @param  Filesystem  $files
      */
     public function __construct(
         Brew $brew,
@@ -60,7 +58,7 @@ class PhpExtension
 
     /**
      * @param $phpVersion
-     * @param bool $onlyDefaults
+     * @param  bool  $onlyDefaults
      */
     public function installExtensions($phpVersion, $onlyDefaults = true)
     {
@@ -90,12 +88,14 @@ class PhpExtension
      *
      * @param $extension
      *    The extension key name.
+     *
      * @return bool
      */
     public function installExtension($extension, $phpVersion)
     {
         if ($this->isInstalled($extension, $phpVersion)) {
             output("\t$extension is already installed, skipping...");
+
             return false;
         }
 
@@ -120,12 +120,14 @@ class PhpExtension
      * @param $extension
      * @param $phpVersion
      * @param $phpIniConfigPath
+     *
      * @return bool
      */
     public function uninstallExtension($extension, $phpVersion, $phpIniConfigPath)
     {
         if (!$this->isInstalled($extension, $phpVersion)) {
             output("\t$extension is already uninstalled, skipping...");
+
             return false;
         }
 
@@ -135,11 +137,13 @@ class PhpExtension
     /**
      * @param $extension
      * @param $phpVersion
+     *
      * @return bool
      */
     public function isInstalled($extension, $phpVersion)
     {
         $formula = $this->getExtensionFormula($extension, $phpVersion);
+
         return $this->brew->installed($formula);
     }
 
@@ -149,6 +153,7 @@ class PhpExtension
      * @param $extension
      *    The extension key name.
      * @param $phpVersion
+     *
      * @return bool
      */
     protected function install($extension, $phpVersion)
@@ -175,6 +180,7 @@ class PhpExtension
      * @param $extension
      * @param $phpVersion
      * @param $phpIniPath
+     *
      * @return bool
      */
     protected function uninstall($extension, $phpVersion, $phpIniConfigPath)
@@ -205,6 +211,7 @@ class PhpExtension
      *
      * @param $extension
      *    The extension key name.
+     *
      * @return bool
      */
     protected function isDefaultExtension($extension)
@@ -221,9 +228,11 @@ class PhpExtension
 
     /**
      * Formula example: shivammathur/extensions/xdebug@8.0
+     *
      * @param $extension
      * @param $phpVersion
-     * @param false $withTap
+     * @param  false  $withTap
+     *
      * @return string
      */
     protected function getExtensionFormula($extension, $phpVersion, $withTap = false)
@@ -239,7 +248,8 @@ class PhpExtension
     /**
      * Check if the extension has any brew dependency
      *
-     * @param mixed $extension
+     * @param  mixed  $extension
+     *
      * @return bool
      */
     protected function hasBrewDependency($extension)
@@ -250,7 +260,8 @@ class PhpExtension
     /**
      * Get the brew dependency
      *
-     * @param mixed $extension
+     * @param  mixed  $extension
+     *
      * @return mixed
      */
     protected function getBrewDependency($extension)
@@ -272,6 +283,7 @@ class PhpExtension
 
     /**
      * @param $extension
+     *
      * @return array
      */
     protected function getIniFiles($extension)
@@ -281,7 +293,7 @@ class PhpExtension
         }
 
         return [
-            $extension
+            $extension,
         ];
     }
 }

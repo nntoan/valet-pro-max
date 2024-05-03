@@ -4,25 +4,16 @@ namespace Valet;
 
 class Configuration
 {
-    /**
-     * @var Filesystem
-     */
-    public $files;
-    /**
-     * @var Architecture
-     */
-    private $architecture;
+    public Filesystem $files;
 
     /**
      * Create a new Valet configuration class instance.
      *
-     * @param Architecture $architecture
-     * @param Filesystem $files
+     * @param  Filesystem  $files
      */
-    public function __construct(Architecture $architecture, Filesystem $files)
+    public function __construct(Filesystem $files)
     {
         $this->files = $files;
-        $this->architecture = $architecture;
     }
 
     /**
@@ -60,15 +51,15 @@ class Configuration
      */
     public function createDriversDirectory()
     {
-        if ($this->files->isDir($driversDirectory = VALET_HOME_PATH.'/Drivers')) {
+        if ($this->files->isDir($driversDirectory = VALET_HOME_PATH . '/Drivers')) {
             return;
         }
 
         $this->files->mkdirAsUser($driversDirectory);
 
         $this->files->putAsUser(
-            $driversDirectory.'/SampleValetDriver.php',
-            $this->files->get(__DIR__.'/../stubs/SampleValetDriver.php')
+            $driversDirectory . '/SampleValetDriver.php',
+            $this->files->get(__DIR__ . '/../stubs/SampleValetDriver.php')
         );
     }
 
@@ -79,7 +70,7 @@ class Configuration
      */
     public function createSitesDirectory()
     {
-        $this->files->ensureDirExists(VALET_HOME_PATH.'/Sites', user());
+        $this->files->ensureDirExists(VALET_HOME_PATH . '/Sites', user());
     }
 
     /**
@@ -89,7 +80,7 @@ class Configuration
      */
     public function createExtensionsDirectory()
     {
-        $this->files->ensureDirExists(VALET_HOME_PATH.'/Extensions', user());
+        $this->files->ensureDirExists(VALET_HOME_PATH . '/Extensions', user());
     }
 
     /**
@@ -99,9 +90,9 @@ class Configuration
      */
     public function createLogDirectory()
     {
-        $this->files->ensureDirExists(VALET_HOME_PATH.'/Log', user());
+        $this->files->ensureDirExists(VALET_HOME_PATH . '/Log', user());
 
-        $this->files->touch(VALET_HOME_PATH.'/Log/nginx-error.log');
+        $this->files->touch(VALET_HOME_PATH . '/Log/nginx-error.log');
     }
 
     /**
@@ -111,7 +102,7 @@ class Configuration
      */
     public function createCertificatesDirectory()
     {
-        $this->files->ensureDirExists(VALET_HOME_PATH.'/Certificates', user());
+        $this->files->ensureDirExists(VALET_HOME_PATH . '/Certificates', user());
     }
 
     /**
@@ -119,8 +110,8 @@ class Configuration
      */
     public function writeBaseConfiguration()
     {
-        if (! $this->files->exists($this->path())) {
-            $this->write(['domain' => 'test', 'paths' => [], 'brewPath' => $this->architecture->getBrewPath()]);
+        if (!$this->files->exists($this->path())) {
+            $this->write(['domain' => 'test', 'paths' => [], 'brewPath' => BREW_PREFIX]);
         }
     }
 
@@ -129,6 +120,7 @@ class Configuration
      *
      * @param  string  $path
      * @param  bool  $prepend
+     *
      * @return void
      */
     public function addPath($path, $prepend = false)
@@ -144,6 +136,7 @@ class Configuration
      * Prepend the given path to the configuration.
      *
      * @param  string  $path
+     *
      * @return void
      */
     public function prependPath($path)
@@ -155,6 +148,7 @@ class Configuration
      * Remove the given path from the configuration.
      *
      * @param  string  $path
+     *
      * @return void
      */
     public function removePath($path)
@@ -173,7 +167,7 @@ class Configuration
      */
     public function prune()
     {
-        if (! $this->files->exists($this->path())) {
+        if (!$this->files->exists($this->path())) {
             return;
         }
 
@@ -199,6 +193,7 @@ class Configuration
      *
      * @param  string  $key
      * @param  mixed  $value
+     *
      * @return array
      */
     public function updateKey($key, $value)
@@ -214,14 +209,18 @@ class Configuration
      * Write the given configuration to disk.
      *
      * @param  array  $config
+     *
      * @return void
      */
     public function write($config)
     {
-        $this->files->putAsUser($this->path(), json_encode(
-            $config,
-            JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES
-        ).PHP_EOL);
+        $this->files->putAsUser(
+            $this->path(),
+            json_encode(
+                $config,
+                JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES
+            ) . PHP_EOL
+        );
     }
 
     /**
@@ -231,6 +230,6 @@ class Configuration
      */
     public function path()
     {
-        return VALET_HOME_PATH.'/config.json';
+        return VALET_HOME_PATH . '/config.json';
     }
 }

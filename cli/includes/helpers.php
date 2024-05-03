@@ -26,6 +26,7 @@ define('VALET_LOOPBACK', '127.0.0.1');
 define('VALET_SERVER_PATH', realpath(__DIR__.'/../../server.php'));
 
 define('BREW_PREFIX', (new CommandLine())->runAsUser('printf $(brew --prefix)'));
+define('ARCH_NAME', (new CommandLine())->run('printf $(uname -m)'));
 
 define('ISOLATED_PHP_VERSION', 'ISOLATED_PHP_VERSION');
 

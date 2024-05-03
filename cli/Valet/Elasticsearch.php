@@ -7,57 +7,34 @@ use DomainException;
 class Elasticsearch
 {
     const NGINX_CONFIGURATION_STUB = __DIR__ . '/../stubs/elasticsearch.conf';
-    const NGINX_CONFIGURATION_PATH = 'etc/nginx/valet/elasticsearch.conf';
+    const NGINX_CONFIGURATION_PATH = '/etc/nginx/valet/elasticsearch.conf';
 
-    const ES_CONFIG_YAML          = '/usr/local/etc/elasticsearch/elasticsearch.yml';
-    const ES_CONFIG_DATA_PATH     = 'path.data';
+    const ES_CONFIG_YAML = '/usr/local/etc/elasticsearch/elasticsearch.yml';
+    const ES_CONFIG_DATA_PATH = 'path.data';
     const ES_CONFIG_DATA_BASEPATH = '/usr/local/var/';
 
     const ES_FORMULA_NAME = 'elasticsearch';
 
     protected $versions;
 
-    /**
-     * @var Brew
-     */
-    public $brew;
-    /**
-     * @var CommandLine
-     */
-    public $cli;
-    /**
-     * @var Filesystem
-     */
-    public $files;
-    /**
-     * @var Configuration
-     */
-    public $configuration;
-    /**
-     * @var Site
-     */
-    public $site;
-    /**
-     * @var PhpFpm
-     */
-    public $phpFpm;
-    /**
-     * @var Architecture
-     */
-    private $architecture;
+    public Brew $brew;
+    public CommandLine $cli;
+    public Filesystem $files;
+    public Configuration $configuration;
+    public Site $site;
+    public PhpFpm $phpFpm;
 
     /**
      * Elasticsearch constructor.
-     * @param Architecture $architecture
-     * @param Brew $brew
-     * @param CommandLine $cli
-     * @param Filesystem $files
-     * @param Configuration $configuration
-     * @param Site $site
-     * @param PhpFpm $phpFpm
+     *
+     * @param  Brew  $brew
+     * @param  CommandLine  $cli
+     * @param  Filesystem  $files
+     * @param  Configuration  $configuration
+     * @param  Site  $site
+     * @param  PhpFpm  $phpFpm
      */
     public function __construct(
-        Architecture $architecture,
         Brew $brew,
         CommandLine $cli,
         Filesystem $files,
@@ -65,25 +42,25 @@ class Elasticsearch
         Site $site,
         PhpFpm $phpFpm
     ) {
-        $this->cli           = $cli;
-        $this->brew          = $brew;
-        $this->site          = $site;
-        $this->files         = $files;
+        $this->cli = $cli;
+        $this->brew = $brew;
+        $this->site = $site;
+        $this->files = $files;
         $this->configuration = $configuration;
-        $this->phpFpm        = $phpFpm;
-        $this->architecture = $architecture;
+        $this->phpFpm = $phpFpm;
     }
 
     /**
      * Install the service.
      *
-     * @param string $version
+     * @param  string  $version
+     *
      * @return void
      */
     public function install($version = null)
     {
         $versions = $this->getVersions();
-        $version  = ($version ? $version : $this->getLatestVersion());
+        $version = ($version ? $version : $this->getLatestVersion());
 
         if (!$this->isSupportedVersion($version)) {
             warning('The Elasticsearch version you\'re installing is not supported.');
@@ -93,7 +70,9 @@ class Elasticsearch
         }
 
         if ($this->installed($version)) {
-            info('[' . $versions[$version]['formula'] . '] (version: ' . $versions[$version]['stable'] . ') already installed');
+            info(
+                '[' . $versions[$version]['formula'] . '] (version: ' . $versions[$version]['stable'] . ') already installed'
+            );
 
             return;
         }
@@ -110,7 +89,8 @@ class Elasticsearch
     /**
      * Returns wether Elasticsearch is installed.
      *
-     * @param string $version
+     * @param  string  $version
+     *
      * @return bool
      */
     public function installed($version = null)
@@ -119,7 +99,7 @@ class Elasticsearch
         //  return when current version (7.10) in Brew has the same formula now as 5.6 at the time.
 
         $versions = $this->getVersions();
-        $majors   = ($version ? [$version] : array_keys($versions));
+        $majors = ($version ? [$version] : array_keys($versions));
         foreach ($majors as $version) {
             if ($this->brew->installed($versions[$version]['formula'])) {
                 return $version;
@@ -132,7 +112,8 @@ class Elasticsearch
     /**
      * Restart the service.
      *
-     * @param string $version
+     * @param  string  $version
+     *
      * @return void
      */
     public function restart($version = null)
@@ -156,7 +137,8 @@ class Elasticsearch
     /**
      * Stop the service.
      *
-     * @param string $version
+     * @param  string  $version
+     *
      * @return void
      */
     public function stop($version = null)
@@ -192,7 +174,7 @@ class Elasticsearch
     public function updateDomain($domain)
     {
         $this->files->putAsUser(
-            $this->architecture->getBrewPath() . '/' . self::NGINX_CONFIGURATION_PATH,
+            BREW_PREFIX . self::NGINX_CONFIGURATION_PATH,
             str_replace(
                 ['VALET_DOMAIN'],
                 [$domain],
@@ -210,7 +192,12 @@ class Elasticsearch
     {
         $currentVersion = $this->getCurrentVersion();
         if (!$this->isSupportedVersion($version)) {
-            throw new DomainException("This version of Elasticsearch is not supported. The following versions are supported: " . implode(', ', array_keys($this->getVersions())) . ($currentVersion ? "\nCurrent version is " . $currentVersion : ""));
+            throw new DomainException(
+                "This version of Elasticsearch is not supported. The following versions are supported: " . implode(
+                    ', ',
+                    array_keys($this->getVersions())
+                ) . ($currentVersion ? "\nCurrent version is " . $currentVersion : "")
+            );
         }
 
         // If the requested version equals that of the current running version, do not switch.
@@ -221,7 +208,7 @@ class Elasticsearch
         }
 
         // Make sure the requested version is installed.
-        $versions  = $this->getVersions();
+        $versions = $this->getVersions();
         $installed = $this->installed($version);
         if (!$installed) {
             $this->brew->ensureInstalled($versions[$version]['formula']);
@@ -239,7 +226,7 @@ class Elasticsearch
         // switching or even break Elasticsearch (it can't start properly with indices from another version).
         // todo; hmmm maybe we should do this also when installing?
         if (extension_loaded('yaml')) {
-            $config                            = yaml_parse_file(self::ES_CONFIG_YAML);
+            $config = yaml_parse_file(self::ES_CONFIG_YAML);
             $config[self::ES_CONFIG_DATA_PATH] = self::ES_CONFIG_DATA_BASEPATH . self::ES_FORMULA_NAME . '@' . $version . '/';
             yaml_emit_file(self::ES_CONFIG_YAML, $config);
         } else {
@@ -264,7 +251,7 @@ class Elasticsearch
     public function getCurrentVersion()
     {
         $currentVersion = false;
-        $versions       = $this->getVersions();
+        $versions = $this->getVersions();
 
         foreach ($versions as $major => $version) {
             if ($this->brew->isStartedService($version['formula'])) {
@@ -303,6 +290,7 @@ class Elasticsearch
      * Returns wether the version is supported in Brew.
      *
      * @param $version
+     *
      * @return bool
      */
     public function isSupportedVersion($version)

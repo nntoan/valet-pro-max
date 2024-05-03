@@ -2,7 +2,6 @@
 
 namespace Valet;
 
-use Exception;
 use DomainException;
 
 /**
@@ -10,7 +9,6 @@ use DomainException;
  */
 class Pecl extends AbstractPecl
 {
-
     // Extensions.
     const XDEBUG_EXTENSION = 'xdebug';
     const APCU_EXTENSION = 'apcu';
@@ -57,7 +55,7 @@ class Pecl extends AbstractPecl
             '7.0' => '2.9.8',
             '5.6' => '2.2.7',
             'default' => false,
-            'extension_type' => self::ZEND_EXTENSION_TYPE
+            'extension_type' => self::ZEND_EXTENSION_TYPE,
         ],
         self::APCU_EXTENSION => [
             '7.3' => '5.1.17',
@@ -65,7 +63,7 @@ class Pecl extends AbstractPecl
             '7.1' => '5.1.17',
             '7.0' => '5.1.17',
             '5.6' => '4.0.11',
-            'extension_type' => self::NORMAL_EXTENSION_TYPE
+            'extension_type' => self::NORMAL_EXTENSION_TYPE,
         ],
         self::GEOIP_EXTENSION => [
             '8.3' => false, //todo; will probably be 1.1.2
@@ -78,7 +76,7 @@ class Pecl extends AbstractPecl
             '7.1' => '1.1.1',
             '7.0' => '1.1.1',
             'extension_type' => self::NORMAL_EXTENSION_TYPE,
-            'brew_dependency' => 'geoip'
+            'brew_dependency' => 'geoip',
         ],
         self::MEMCACHE_EXTENSION => [
             '7.3' => '3.1.3',
@@ -86,33 +84,25 @@ class Pecl extends AbstractPecl
             '7.1' => '3.1.3',
             '7.0' => '3.1.3',
             'default' => false,
-            'extension_type' => self::NORMAL_EXTENSION_TYPE
+            'extension_type' => self::NORMAL_EXTENSION_TYPE,
         ],
         self::YAML_EXTENSION => [
             '5.6' => '1.3.1',
             '7.0' => '2.0.4',
             'extension_type' => self::NORMAL_EXTENSION_TYPE,
-            'brew_dependency' => 'libyaml'
-        ]
+            'brew_dependency' => 'libyaml',
+        ],
     ];
 
-    /**
-     * @var PeclCustom
-     */
-    public $peclCustom;
-    /**
-     * @var Architecture
-     */
-    private $architecture;
+    public PeclCustom $peclCustom;
 
     /**
      * @inheritdoc
      */
-    public function __construct(Architecture $architecture, CommandLine $cli, Filesystem $files, PeclCustom $peclCustom)
+    public function __construct(CommandLine $cli, Filesystem $files, PeclCustom $peclCustom)
     {
         parent::__construct($cli, $files);
         $this->peclCustom = $peclCustom;
-        $this->architecture = $architecture;
     }
 
     /**
@@ -139,16 +129,19 @@ class Pecl extends AbstractPecl
      *
      * @param $extension
      *    The extension key name.
+     *
      * @return bool
      */
     public function installExtension($extension)
     {
         if ($this->isInstalled($extension)) {
             output("\t$extension is already installed, skipping...");
+
             return false;
         }
 
         $this->install($extension, $this->getVersion($extension));
+
         return true;
     }
 
@@ -157,13 +150,15 @@ class Pecl extends AbstractPecl
      *
      * @param $extension
      *    The extension key name.
-     * @param null $version
+     * @param  null  $version
      */
     protected function install($extension, $version = null)
     {
         if ($version === null) {
             if ($this->hasBrewDependency($extension)) {
-                $result = $this->cli->runAsUser("echo $(brew --prefix " . $this->getBrewDependency($extension) . ") | pecl install $extension");
+                $result = $this->cli->runAsUser(
+                    "echo $(brew --prefix " . $this->getBrewDependency($extension) . ") | pecl install $extension"
+                );
             } else {
                 $result = $this->cli->runAsUser("pecl install $extension");
             }
@@ -194,16 +189,19 @@ class Pecl extends AbstractPecl
      *
      * @param $extension
      *    The extension key name.
+     *
      * @return bool
      */
     public function enableExtension($extension)
     {
         if ($this->isEnabled($extension) && $this->isEnabledCorrectly($extension)) {
             output("\t$extension is already enabled, skipping...");
+
             return false;
         }
 
         $this->enable($extension);
+
         return true;
     }
 
@@ -242,6 +240,7 @@ class Pecl extends AbstractPecl
      *
      * @param $extension
      *    The extension key name.
+     *
      * @return bool
      *    Whether or not an uninstall happened.
      */
@@ -253,8 +252,10 @@ class Pecl extends AbstractPecl
         }
         if ($this->isInstalled($extension)) {
             $this->uninstall($extension, $version);
+
             return true;
         }
+
         return false;
     }
 
@@ -287,6 +288,7 @@ class Pecl extends AbstractPecl
      * apcu.so so we define apc.so here as alternative.
      *
      * @param $extension
+     *
      * @return string
      */
     private function alternativeDisable($extension)
@@ -304,6 +306,7 @@ class Pecl extends AbstractPecl
      * apcu.so so we define apc.so here as alternative.
      *
      * @param $extension
+     *
      * @return string
      */
     private function alternativeUninstall($extension)
@@ -319,7 +322,7 @@ class Pecl extends AbstractPecl
      *
      * @param $extension
      *    The extension key name.
-     * @param null $version
+     * @param  null  $version
      */
     private function uninstall($extension, $version = null)
     {
@@ -353,7 +356,7 @@ class Pecl extends AbstractPecl
         foreach (PhpFpm::SUPPORTED_PHP_FORMULAE as $phpVersion => $brewname) {
             output("Checking php $phpVersion...");
 
-            $pearConfigPath = $this->architecture->getBrewPath() . PhpFpm::LOCAL_PHP_FOLDER . "$phpVersion/pear.conf";
+            $pearConfigPath = BREW_PREFIX . PhpFpm::LOCAL_PHP_FOLDER . "$phpVersion/pear.conf";
 
             if (!$this->files->exists($pearConfigPath)) {
                 warning("    Skipping $phpVersion, Pear config path could not be found at: $pearConfigPath");
@@ -368,10 +371,12 @@ class Pecl extends AbstractPecl
             foreach ($pearConfigSplit as $splitValue) {
                 if (strpos($splitValue, 'php_ini')) {
                     $pearConfig = unserialize($splitValue);
-                } else if (strpos($splitValue, 'Config')) {
-                    $pearConfigVersion = $splitValue;
                 } else {
-                    continue;
+                    if (strpos($splitValue, 'Config')) {
+                        $pearConfigVersion = $splitValue;
+                    } else {
+                        continue;
+                    }
                 }
             }
 
@@ -383,16 +388,16 @@ class Pecl extends AbstractPecl
             $pearName = $this->replacePhpWithPear($brewname);
 
             $phpIniPath = str_replace('pear.conf', 'php.ini', $pearConfigPath);
-            $phpDirPath = $this->architecture->getBrewPath() . "/share/$pearName";
-            $pearDocDirPath = $this->architecture->getBrewPath() . "/share/$pearName/doc";
-            $phpExtensionDirPath = $this->architecture->getBrewPath() . '/lib/php/pecl/'.basename($pearConfig['ext_dir']);
-            $phpBinPath = $this->architecture->getBrewPath() . "/opt/$brewname/bin";
-            $pearDataDirPath = $this->architecture->getBrewPath() . "/share/$pearName/data";
-            $pearCfgDirPath = $this->architecture->getBrewPath() . "/share/$pearName/cfg";
-            $pearWwwDirPath = $this->architecture->getBrewPath() . "/share/$pearName/htdocs";
-            $pearManDirPath = $this->architecture->getBrewPath() . '/share/man';
-            $pearTestDirPath = $this->architecture->getBrewPath() . "/share/$pearName/test";
-            $phpBinDirPath = $this->architecture->getBrewPath() . "/opt/$brewname/bin/php";
+            $phpDirPath = BREW_PREFIX . "/share/$pearName";
+            $pearDocDirPath = BREW_PREFIX . "/share/$pearName/doc";
+            $phpExtensionDirPath = BREW_PREFIX . '/lib/php/pecl/' . basename($pearConfig['ext_dir']);
+            $phpBinPath = BREW_PREFIX . "/opt/$brewname/bin";
+            $pearDataDirPath = BREW_PREFIX . "/share/$pearName/data";
+            $pearCfgDirPath = BREW_PREFIX . "/share/$pearName/cfg";
+            $pearWwwDirPath = BREW_PREFIX . "/share/$pearName/htdocs";
+            $pearManDirPath = BREW_PREFIX . '/share/man';
+            $pearTestDirPath = BREW_PREFIX . "/share/$pearName/test";
+            $phpBinDirPath = BREW_PREFIX . "/opt/$brewname/bin/php";
 
             // Check php_ini value of par config.
             if (empty($pearConfig['php_ini']) || $pearConfig['php_ini'] !== $phpIniPath) {
@@ -453,7 +458,7 @@ class Pecl extends AbstractPecl
             // Rebuild the config.
             $pearConfig = serialize($pearConfig);
             if (!empty($pearConfigVersion)) {
-                $pearConfig = $pearConfigVersion."\n".$pearConfig;
+                $pearConfig = $pearConfigVersion . "\n" . $pearConfig;
             }
 
             // Put config back into the pear.conf file.
@@ -478,6 +483,7 @@ class Pecl extends AbstractPecl
      * @param $extension
      *    The extension key name.
      * @param $phpIniFile
+     *
      * @return string
      */
     private function alternativeInstall($extension, $phpIniFile)
@@ -513,6 +519,7 @@ class Pecl extends AbstractPecl
      *
      * @param $extension
      *    The extension key name.
+     *
      * @return bool
      */
     private function isDefaultExtension($extension)
@@ -542,6 +549,7 @@ class Pecl extends AbstractPecl
      *
      * @param $extension
      *    The extension key name.
+     *
      * @return null
      */
     private function getVersion($extension)
@@ -550,13 +558,15 @@ class Pecl extends AbstractPecl
         if (array_key_exists($phpVersion, self::EXTENSIONS[$extension])) {
             return self::EXTENSIONS[$extension][$phpVersion];
         }
+
         return null;
     }
 
     /**
      * Check if the extension has any brew dependency
      *
-     * @param mixed $extension
+     * @param  mixed  $extension
+     *
      * @return bool
      */
     private function hasBrewDependency($extension)
@@ -568,7 +578,8 @@ class Pecl extends AbstractPecl
     /**
      * Get the brew dependency for the pecl command
      *
-     * @param mixed $extension
+     * @param  mixed  $extension
+     *
      * @return mixed
      */
     private function getBrewDependency($extension)
@@ -583,6 +594,7 @@ class Pecl extends AbstractPecl
      * deem the module as "disabled" and replace the existing directives with a single one.
      *
      * @param $extension
+     *
      * @return bool
      */
     private function isEnabledCorrectly($extension)
@@ -593,7 +605,10 @@ class Pecl extends AbstractPecl
         $alias = $this->getExtensionAlias($extension);
         preg_match_all("/$type=\"$alias.so\"/m", $phpIniFile, $matches);
         $alternativeEnabledCorrectly = $this->isAlternativeEnabledCorrectly($extension);
-        $isEnabledCorrectly = $alternativeEnabledCorrectly && (is_array($matches) && count($matches) === 1?count($matches[0]) === 1:false);
+        $isEnabledCorrectly = $alternativeEnabledCorrectly && (is_array($matches) && count($matches) === 1 ? count(
+                    $matches[0]
+                ) === 1 : false);
+
         return $isEnabledCorrectly;
     }
 
@@ -601,6 +616,7 @@ class Pecl extends AbstractPecl
      * Alternative case for checking directives of modules that depend on other modules.
      *
      * @param $extension
+     *
      * @return bool
      */
     private function isAlternativeEnabledCorrectly($extension)

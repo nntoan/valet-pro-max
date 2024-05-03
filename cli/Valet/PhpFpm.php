@@ -18,14 +18,14 @@ class PhpFpm
     const PHP_V83_VERSION = '8.3';
 
     const SUPPORTED_PHP_FORMULAE = [
-        self::PHP_V71_VERSION => self::PHP_FORMULA_NAME .'@'. self::PHP_V71_VERSION,
-        self::PHP_V72_VERSION => self::PHP_FORMULA_NAME .'@'. self::PHP_V72_VERSION,
-        self::PHP_V73_VERSION => self::PHP_FORMULA_NAME .'@'. self::PHP_V73_VERSION,
-        self::PHP_V74_VERSION => self::PHP_FORMULA_NAME .'@'. self::PHP_V74_VERSION,
-        self::PHP_V80_VERSION => self::PHP_FORMULA_NAME .'@'. self::PHP_V80_VERSION,
-        self::PHP_V81_VERSION => self::PHP_FORMULA_NAME .'@'. self::PHP_V81_VERSION,
-        self::PHP_V82_VERSION => self::PHP_FORMULA_NAME .'@'. self::PHP_V82_VERSION,
-        self::PHP_V83_VERSION => self::PHP_FORMULA_NAME
+        self::PHP_V71_VERSION => self::PHP_FORMULA_NAME . '@' . self::PHP_V71_VERSION,
+        self::PHP_V72_VERSION => self::PHP_FORMULA_NAME . '@' . self::PHP_V72_VERSION,
+        self::PHP_V73_VERSION => self::PHP_FORMULA_NAME . '@' . self::PHP_V73_VERSION,
+        self::PHP_V74_VERSION => self::PHP_FORMULA_NAME . '@' . self::PHP_V74_VERSION,
+        self::PHP_V80_VERSION => self::PHP_FORMULA_NAME . '@' . self::PHP_V80_VERSION,
+        self::PHP_V81_VERSION => self::PHP_FORMULA_NAME . '@' . self::PHP_V81_VERSION,
+        self::PHP_V82_VERSION => self::PHP_FORMULA_NAME . '@' . self::PHP_V82_VERSION,
+        self::PHP_V83_VERSION => self::PHP_FORMULA_NAME,
     ];
 
     const EOL_PHP_VERSIONS = [
@@ -33,34 +33,30 @@ class PhpFpm
         self::PHP_V72_VERSION,
         self::PHP_V73_VERSION,
         self::PHP_V74_VERSION,
-        self::PHP_V80_VERSION
+        self::PHP_V80_VERSION,
     ];
 
     const LOCAL_PHP_FOLDER = '/etc/php/';
-
-    protected $architecture;
-    protected $brew;
-    protected $cli;
-    protected $files;
-    protected $phpExtension;
-    protected $pecl;
-    protected $peclCustom;
-
     const DEPRECATED_PHP_TAP = 'homebrew/php';
     const DEPRECATED_VALET_PHP_BREW_TAP = 'henkrehorst/php';
     const SHIVAMMATHUR_PHP_BREW_TAP = 'shivammathur/php';
 
+    protected Brew $brew;
+    protected CommandLine $cli;
+    protected Filesystem $files;
+    protected PhpExtension $phpExtension;
+    protected Pecl $pecl;
+    protected PeclCustom $peclCustom;
+
     /**
-     * @param Architecture $architecture
-     * @param Brew $brew
-     * @param CommandLine $cli
-     * @param Filesystem $files
-     * @param PhpExtension $phpExtension
-     * @param Pecl $pecl
-     * @param PeclCustom $peclCustom
+     * @param  Brew  $brew
+     * @param  CommandLine  $cli
+     * @param  Filesystem  $files
+     * @param  PhpExtension  $phpExtension
+     * @param  Pecl  $pecl
+     * @param  PeclCustom  $peclCustom
      */
     public function __construct(
-        Architecture $architecture,
         Brew $brew,
         CommandLine $cli,
         Filesystem $files,
@@ -74,7 +70,6 @@ class PhpFpm
         $this->phpExtension = $phpExtension;
         $this->pecl = $pecl;
         $this->peclCustom = $peclCustom;
-        $this->architecture = $architecture;
     }
 
     /**
@@ -108,7 +103,7 @@ class PhpFpm
 
         $version = $this->linkedPhp();
 
-        $this->files->ensureDirExists($this->architecture->getBrewPath() . '/var/log', user());
+        $this->files->ensureDirExists(BREW_PREFIX . '/var/log', user());
         $this->updateConfiguration();
         $this->pecl->uninstallExtensions();
         $this->phpExtension->installExtensions($version);
@@ -154,16 +149,15 @@ class PhpFpm
      */
     public function fpmConfigPath()
     {
-        $brewPath = $this->architecture->getBrewPath();
         $confLookup = [
-            self::PHP_V83_VERSION => $brewPath . self::LOCAL_PHP_FOLDER . '8.3/php-fpm.d/www.conf',
-            self::PHP_V82_VERSION => $brewPath . self::LOCAL_PHP_FOLDER . '8.2/php-fpm.d/www.conf',
-            self::PHP_V81_VERSION => $brewPath . self::LOCAL_PHP_FOLDER . '8.1/php-fpm.d/www.conf',
-            self::PHP_V80_VERSION => $brewPath . self::LOCAL_PHP_FOLDER . '8.0/php-fpm.d/www.conf',
-            self::PHP_V74_VERSION => $brewPath . self::LOCAL_PHP_FOLDER . '7.4/php-fpm.d/www.conf',
-            self::PHP_V73_VERSION => $brewPath . self::LOCAL_PHP_FOLDER . '7.3/php-fpm.d/www.conf',
-            self::PHP_V72_VERSION => $brewPath . self::LOCAL_PHP_FOLDER . '7.2/php-fpm.d/www.conf',
-            self::PHP_V71_VERSION => $brewPath . self::LOCAL_PHP_FOLDER . '7.1/php-fpm.d/www.conf'
+            self::PHP_V83_VERSION => BREW_PREFIX . self::LOCAL_PHP_FOLDER . '8.3/php-fpm.d/www.conf',
+            self::PHP_V82_VERSION => BREW_PREFIX . self::LOCAL_PHP_FOLDER . '8.2/php-fpm.d/www.conf',
+            self::PHP_V81_VERSION => BREW_PREFIX . self::LOCAL_PHP_FOLDER . '8.1/php-fpm.d/www.conf',
+            self::PHP_V80_VERSION => BREW_PREFIX . self::LOCAL_PHP_FOLDER . '8.0/php-fpm.d/www.conf',
+            self::PHP_V74_VERSION => BREW_PREFIX . self::LOCAL_PHP_FOLDER . '7.4/php-fpm.d/www.conf',
+            self::PHP_V73_VERSION => BREW_PREFIX . self::LOCAL_PHP_FOLDER . '7.3/php-fpm.d/www.conf',
+            self::PHP_V72_VERSION => BREW_PREFIX . self::LOCAL_PHP_FOLDER . '7.2/php-fpm.d/www.conf',
+            self::PHP_V71_VERSION => BREW_PREFIX . self::LOCAL_PHP_FOLDER . '7.1/php-fpm.d/www.conf',
         ];
 
         return $confLookup[$this->linkedPhp()];
@@ -173,6 +167,7 @@ class PhpFpm
      * Get the formula name for a PHP version.
      *
      * @param $version
+     *
      * @return string Formula name
      */
     public function getFormulaName($version)
@@ -201,6 +196,7 @@ class PhpFpm
         // If the current version equals that of the current PHP version, do not switch.
         if ($version === $currentVersion) {
             info('Already on this version');
+
             return;
         }
 
@@ -210,9 +206,9 @@ class PhpFpm
         }
 
         $this->pecl->uninstallExtensions();
-        $installed = $this->brew->installed(self::PHP_FORMULA_PREFIX. self::SUPPORTED_PHP_FORMULAE[$version]);
+        $installed = $this->brew->installed(self::PHP_FORMULA_PREFIX . self::SUPPORTED_PHP_FORMULAE[$version]);
         if (!$installed) {
-            $this->brew->ensureInstalled(self::PHP_FORMULA_PREFIX.self::SUPPORTED_PHP_FORMULAE[$version]);
+            $this->brew->ensureInstalled(self::PHP_FORMULA_PREFIX . self::SUPPORTED_PHP_FORMULAE[$version]);
         }
 
         // Unlink the current PHP version.
@@ -234,6 +230,7 @@ class PhpFpm
      *
      * @param $version
      * @param $currentVersion
+     *
      * @return bool
      */
     private function linkPhp($version, $currentVersion = null)
@@ -241,7 +238,7 @@ class PhpFpm
         $isLinked = true;
         info("[php@$version] Linking");
         $output = $this->cli->runAsUser(
-            'brew link ' . self::PHP_FORMULA_PREFIX.self::SUPPORTED_PHP_FORMULAE[$version] . ' --force --overwrite',
+            'brew link ' . self::PHP_FORMULA_PREFIX . self::SUPPORTED_PHP_FORMULAE[$version] . ' --force --overwrite',
             function () use (&$isLinked) {
                 $isLinked = false;
             }
@@ -277,15 +274,21 @@ class PhpFpm
      * Unlink a PHP version, removing the binary symlink.
      *
      * @param $version
+     *
      * @return bool
      */
     private function unlinkPhp($version)
     {
         $isUnlinked = true;
         info("[php@$version] Unlinking");
-        output($this->cli->runAsUser('brew unlink ' . self::PHP_FORMULA_PREFIX.self::SUPPORTED_PHP_FORMULAE[$version], function () use (&$isUnlinked) {
-            $isUnlinked = false;
-        }));
+        output(
+            $this->cli->runAsUser(
+                'brew unlink ' . self::PHP_FORMULA_PREFIX . self::SUPPORTED_PHP_FORMULAE[$version],
+                function () use (&$isUnlinked) {
+                    $isUnlinked = false;
+                }
+            )
+        );
         if ($isUnlinked === false) {
             warning(
                 "Could not unlink PHP version!" . PHP_EOL .
@@ -308,9 +311,11 @@ class PhpFpm
                 'sed -i "" "s/xdebug.remote_autostart=0/xdebug.remote_autostart=1/g" ' . $iniPath . 'z-performance.ini'
             );
             info('xdebug.remote_autostart is now enabled.');
+
             return true;
         }
         warning('Cannot find z-performance.ini, please re-install Valet Pro Max');
+
         return false;
     }
 
@@ -329,12 +334,12 @@ class PhpFpm
 
         $iniPath = $this->iniPath();
         $zPerformancePath = $iniPath . 'z-performance.ini';
-        $majorVersion = (int) substr($version, 0, 1);
+        $majorVersion = (int)substr($version, 0, 1);
 
         if (!$this->files->exists($zPerformancePath)) {
             warning('Cannot find z-performance.ini, please re-install Valet Pro Max');
         }
-        info('Patching z-performance.ini so it will work with Xdebug '. $version);
+        info('Patching z-performance.ini so it will work with Xdebug ' . $version);
         $content = $this->files->get($zPerformancePath);
 
         if ($majorVersion === 3) {
@@ -395,9 +400,11 @@ class PhpFpm
                 'sed -i "" "s/xdebug.remote_autostart=1/xdebug.remote_autostart=0/g" ' . $iniPath . 'z-performance.ini'
             );
             info('xdebug.remote_autostart is now disabled.');
+
             return true;
         }
         warning('Cannot find z-performance.ini, please re-install Valet Pro Max');
+
         return false;
     }
 
@@ -409,7 +416,7 @@ class PhpFpm
      */
     public function linkedPhp()
     {
-        $phpPath = $this->architecture->getBrewPath() . '/bin/php';
+        $phpPath = BREW_PREFIX . '/bin/php';
         if (!$this->files->isLink($phpPath)) {
             throw new DomainException("Unable to determine linked PHP.");
         }
@@ -434,7 +441,7 @@ class PhpFpm
     public function hasInstalledPhp()
     {
         foreach (self::SUPPORTED_PHP_FORMULAE as $version => $brewName) {
-            if ($this->brew->installed(self::PHP_FORMULA_PREFIX.self::PHP_FORMULA_PREFIX.$brewName)) {
+            if ($this->brew->installed(self::PHP_FORMULA_PREFIX . self::PHP_FORMULA_PREFIX . $brewName)) {
                 return true;
             }
         }
@@ -496,7 +503,7 @@ class PhpFpm
         $contents = $this->files->get(__DIR__ . '/../stubs/z-performance.ini');
         $contents = str_replace('TIMEZONE', $systemZoneName, $contents);
         // Fix brew path in z-performance.ini
-        $contents = str_replace('BREW_PATH', $this->architecture->getBrewPath(), $contents);
+        $contents = str_replace('BREW_PATH', BREW_PREFIX, $contents);
 
         $iniPath = $this->iniPath();
         $this->files->ensureDirExists($iniPath, user());
@@ -517,8 +524,12 @@ class PhpFpm
         // If the reinstall flag was passed, uninstall PHP.
         // If any error occurs return the error for debugging purposes.
         if ($reinstall) {
-            $this->brew->ensureUninstalled(self::PHP_FORMULA_PREFIX.self::SUPPORTED_PHP_FORMULAE[self::PHP_V74_VERSION]);
-            $this->brew->ensureInstalled(self::PHP_FORMULA_PREFIX.self::SUPPORTED_PHP_FORMULAE[self::PHP_V74_VERSION]);
+            $this->brew->ensureUninstalled(
+                self::PHP_FORMULA_PREFIX . self::SUPPORTED_PHP_FORMULAE[self::PHP_V74_VERSION]
+            );
+            $this->brew->ensureInstalled(
+                self::PHP_FORMULA_PREFIX . self::SUPPORTED_PHP_FORMULAE[self::PHP_V74_VERSION]
+            );
         }
 
         // Check the current linked PHP version. If the current version is not the default version.

@@ -4,42 +4,34 @@ namespace Valet;
 
 class RedisTool extends AbstractService
 {
-    public $brew;
-    public $cli;
-    public $files;
-    public $site;
+    const REDIS_CONF = '/etc/redis.conf';
 
-    const REDIS_CONF = 'etc/redis.conf';
-    /**
-     * @var Architecture
-     */
-    private $architecture;
+    public Brew $brew;
+    public CommandLine $cli;
+    public Filesystem $files;
+    public Site $site;
 
     /**
      * Create a new instance.
      *
-     * @param Architecture $architecture
-     * @param Brew $brew
-     * @param CommandLine $cli
-     * @param Filesystem $files
-     * @param Configuration $configuration
-     * @param Site $site
+     * @param  Brew  $brew
+     * @param  CommandLine  $cli
+     * @param  Filesystem  $files
+     * @param  Configuration  $configuration
+     * @param  Site  $site
      */
     public function __construct(
-        Architecture $architecture,
+        Configuration $configuration,
         Brew $brew,
         CommandLine $cli,
         Filesystem $files,
-        Configuration $configuration,
         Site $site
     ) {
-        $this->cli   = $cli;
-        $this->brew  = $brew;
-        $this->site  = $site;
-        $this->files = $files;
-        $this->architecture = $architecture;
         parent::__construct($configuration);
-        $this->configuration = $configuration;
+        $this->cli = $cli;
+        $this->brew = $brew;
+        $this->site = $site;
+        $this->files = $files;
     }
 
     /**
@@ -78,11 +70,11 @@ class RedisTool extends AbstractService
      */
     public function installConfiguration()
     {
-        $contents = $this->files->get(__DIR__.'/../stubs/redis.conf');
+        $contents = $this->files->get(__DIR__ . '/../stubs/redis.conf');
 
         $this->files->put(
-            $this->architecture->getBrewPath() . "/" . static::REDIS_CONF,
-            str_replace('BREW_PATH', $this->architecture->getBrewPath(), $contents)
+            BREW_PREFIX . static::REDIS_CONF,
+            str_replace('BREW_PATH', BREW_PREFIX, $contents)
         );
     }
 

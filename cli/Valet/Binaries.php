@@ -33,45 +33,33 @@ class Binaries
         self::N98_MAGERUN => [
             'url' => 'https://files.magerun.net/n98-magerun-2.3.0.phar',
             'shasum' => 'b3e09dafccd4dd505a073c4e8789d78ea3def893cfc475a214e1154bff3aa8e4',
-            'bin_location' => '/bin/'
+            'bin_location' => BREW_PREFIX . '/bin/',
         ],
         self::N98_MAGERUN_2 => [
             'url' => 'https://files.magerun.net/n98-magerun2-7.0.3.phar',
             'shasum' => '4aa39aa33d9cd5f2d5e22850df76543791cf4f31c7dbdb7f9de698500f74307b',
-            'bin_location' => '/bin/'
+            'bin_location' => BREW_PREFIX . '/bin/',
         ],
         self::DRUSH_LAUNCHER => [
             'url' => 'https://github.com/drush-ops/drush-launcher/releases/download/0.10.2/drush.phar',
             'shasum' => '0ae18cd3f8745fdd58ab852481b89428b57be6523edf4d841ebef198c40271be',
-            'bin_location' => '/bin/'
-        ]
+            'bin_location' => BREW_PREFIX . '/bin/',
+        ],
     ];
 
-    /**
-     * @var CommandLine
-     */
-    public $cli;
-    /**
-     * @var Filesystem
-     */
-    public $files;
-    /**
-     * @var Architecture
-     */
-    private $architecture;
+    public CommandLine $cli;
+    public Filesystem $files;
 
     /**
      * Create a new Brew instance.
      *
-     * @param Architecture $architecture
-     * @param CommandLine $cli
-     * @param Filesystem $files
+     * @param  CommandLine  $cli
+     * @param  Filesystem  $files
      */
-    public function __construct(Architecture $architecture, CommandLine $cli, Filesystem $files)
+    public function __construct(CommandLine $cli, Filesystem $files)
     {
         $this->cli = $cli;
         $this->files = $files;
-        $this->architecture = $architecture;
     }
 
     /**
@@ -79,6 +67,7 @@ class Binaries
      *
      * @param $binary
      *    The binary key name.
+     *
      * @return bool
      *    True if installed, false if not installed.
      */
@@ -119,8 +108,11 @@ class Binaries
         // Check the checksum of downloaded file.
         if (!$this->checkShasum($binary, $fileName)) {
             $this->cli->runAsUser("rm /tmp/$fileName");
-            warning("$binary could not be installed, $fileName checksum does not match: " .
-                $this->getShasum($binary));
+            warning(
+                "$binary could not be installed, $fileName checksum does not match: " .
+                $this->getShasum($binary)
+            );
+
             return;
         }
 
@@ -169,6 +161,7 @@ class Binaries
      *    The binary key name.
      * @param $fileName
      *    The filename of the downloaded file.
+     *
      * @return bool
      *    True if matching, false if not matching.
      */
@@ -178,6 +171,7 @@ class Binaries
         $checksum = str_replace("/tmp/$fileName", '', $checksum);
         $checksum = str_replace("\n", '', $checksum);
         $checksum = str_replace(' ', '', $checksum);
+
         return $checksum === $this->getShasum($binary);
     }
 
@@ -186,6 +180,7 @@ class Binaries
      *
      * @param $binary
      *    The binary key name.
+     *
      * @return string
      *    The url as string defined within the binary key.
      */
@@ -202,6 +197,7 @@ class Binaries
      *
      * @param $binary
      *    The binary key name.
+     *
      * @return string
      *    The shasum as string defined within the binary key.
      */
@@ -218,13 +214,14 @@ class Binaries
      *
      * @param $binary
      *    The binary key name.
+     *
      * @return string
      *    The bin_location as string defined within the binary key.
      */
     private function getBinLocation($binary)
     {
         if (array_key_exists('bin_location', self::SUPPORTED_CUSTOM_BINARIES[$binary])) {
-            return $this->architecture->getBrewPath() . self::SUPPORTED_CUSTOM_BINARIES[$binary]['bin_location'] . $binary;
+            return self::SUPPORTED_CUSTOM_BINARIES[$binary]['bin_location'] . $binary;
         }
         throw new DomainException('bin_location key is required for binaries.');
     }

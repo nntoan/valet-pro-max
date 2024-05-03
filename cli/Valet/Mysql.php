@@ -5,44 +5,28 @@ namespace Valet;
 use DomainException;
 use mysqli;
 use MYSQLI_ASSOC;
+
 use function str_replace;
 
 class Mysql
 {
     const MYSQL_CONF_DIR = 'etc';
-    const MYSQL_CONF = 'etc/my.cnf';
+    const MYSQL_CONF = '/etc/my.cnf';
     const MAX_FILES_CONF = '/Library/LaunchDaemons/limit.maxfiles.plist';
     const MYSQL_DIR = 'var/mysql';
     const MYSQL_ROOT_PASSWORD = 'root';
 
-    /**
-     * @var Brew
-     */
-    public $brew;
-    /**
-     * @var CommandLine
-     */
-    public $cli;
-    /**
-     * @var Filesystem
-     */
-    public $files;
-    /**
-     * @var Configuration
-     */
-    public $configuration;
-    /**
-     * @var Site
-     */
-    public $site;
-    /**
-     * @var Architecture
-     */
-    private $architecture;
+    public Brew $brew;
+    public CommandLine $cli;
+    public Filesystem $files;
+    public Configuration $configuration;
+    public Site $site;
+
     /**
      * @var string[]
      */
     public $systemDatabase = ['sys', 'performance_schema', 'information_schema', 'mysql'];
+
     /**
      * @var Mysqli
      */
@@ -51,15 +35,13 @@ class Mysql
     /**
      * Create a new instance.
      *
-     * @param Architecture $architecture
-     * @param Brew $brew
-     * @param CommandLine $cli
-     * @param Filesystem $files
-     * @param Configuration $configuration
-     * @param Site $site
+     * @param  Brew  $brew
+     * @param  CommandLine  $cli
+     * @param  Filesystem  $files
+     * @param  Configuration  $configuration
+     * @param  Site  $site
      */
     public function __construct(
-        Architecture $architecture,
         Brew $brew,
         CommandLine $cli,
         Filesystem $files,
@@ -71,7 +53,6 @@ class Mysql
         $this->site = $site;
         $this->files = $files;
         $this->configuration = $configuration;
-        $this->architecture = $architecture;
     }
 
     /**
@@ -137,7 +118,7 @@ class Mysql
     /**
      * Get installed version of database system.
      *
-     * @param bool $default
+     * @param  bool  $default
      *
      * @return bool|string
      */
@@ -153,8 +134,8 @@ class Mysql
      */
     private function removeConfiguration()
     {
-        $this->files->unlink($this->architecture->getBrewPath() . "/" . static::MYSQL_CONF);
-        $this->files->unlink($this->architecture->getBrewPath() . "/" . static::MYSQL_CONF . '.default');
+        $this->files->unlink(BREW_PREFIX . static::MYSQL_CONF);
+        $this->files->unlink(BREW_PREFIX . static::MYSQL_CONF . '.default');
     }
 
     /**
@@ -172,15 +153,15 @@ class Mysql
     /**
      * Install the configuration files.
      *
-     * @param string $type
+     * @param  string  $type
      */
     public function installConfiguration($type = 'mysql@5.7')
     {
         info('[' . $type . '] Configuring');
 
-        $this->files->chmodPath($this->architecture->getBrewPath() . "/" . static::MYSQL_DIR, 0777);
+        $this->files->chmodPath(BREW_PREFIX . "/" . static::MYSQL_DIR, 0777);
 
-        if (!$this->files->isDir($directory = $this->architecture->getBrewPath() . "/" . static::MYSQL_CONF_DIR)) {
+        if (!$this->files->isDir($directory = BREW_PREFIX . "/" . static::MYSQL_CONF_DIR)) {
             $this->files->mkdirAsUser($directory);
         }
 
@@ -202,7 +183,7 @@ class Mysql
         $contents = str_replace('VALET_HOME_PATH', VALET_HOME_PATH, $contents);
 
         $this->files->putAsUser(
-            $this->architecture->getBrewPath() . "/" . static::MYSQL_CONF,
+            BREW_PREFIX . static::MYSQL_CONF,
             $contents
         );
     }
@@ -219,16 +200,20 @@ class Mysql
 
     /**
      * Set root password of Mysql.
-     * @param string $oldPwd
-     * @param string $newPwd
+     *
+     * @param  string  $oldPwd
+     * @param  string  $newPwd
      */
     public function setRootPassword($oldPwd = '', $newPwd = self::MYSQL_ROOT_PASSWORD)
     {
         $success = true;
-        $this->cli->runAsUser("mysqladmin -u root --password='".$oldPwd."' password ".$newPwd, function () use (&$success) {
-            warning('Setting mysql password for root user failed. ');
-            $success = false;
-        });
+        $this->cli->runAsUser(
+            "mysqladmin -u root --password='" . $oldPwd . "' password " . $newPwd,
+            function () use (&$success) {
+                warning('Setting mysql password for root user failed. ');
+                $success = false;
+            }
+        );
 
         if ($success !== false) {
             $config = $this->configuration->read();
@@ -293,7 +278,7 @@ class Mysql
      * Run Mysql query.
      *
      * @param $query
-     * @param bool $escape
+     * @param  bool  $escape
      *
      * @return bool|\mysqli_result
      */
@@ -338,7 +323,7 @@ class Mysql
     /**
      * escape string of query via myslqi.
      *
-     * @param string $string
+     * @param  string  $string
      *
      * @return string
      */
@@ -371,9 +356,9 @@ class Mysql
     /**
      * Import Mysql database from file.
      *
-     * @param string $file
-     * @param string $database
-     * @param bool   $dropDatabase
+     * @param  string  $file
+     * @param  string  $database
+     * @param  bool  $dropDatabase
      */
     public function importDatabase($file, $database, $dropDatabase = false)
     {
@@ -424,7 +409,7 @@ class Mysql
     /**
      * Drop Mysql database.
      *
-     * @param string $name
+     * @param  string  $name
      *
      * @return bool|string
      */
@@ -438,7 +423,7 @@ class Mysql
     /**
      * Create Mysql database.
      *
-     * @param string $name
+     * @param  string  $name
      *
      * @return bool|string
      */
@@ -452,7 +437,7 @@ class Mysql
     /**
      * Check if database already exists.
      *
-     * @param string $name
+     * @param  string  $name
      *
      * @return bool|\mysqli_result
      */
@@ -460,9 +445,12 @@ class Mysql
     {
         $name = $this->getDatabaseName($name);
 
-        $query = $this->query("SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '" . $this->escape($name) . "'", false);
+        $query = $this->query(
+            "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '" . $this->escape($name) . "'",
+            false
+        );
 
-        return (bool) $query->num_rows;
+        return (bool)$query->num_rows;
     }
 
     /**
@@ -488,7 +476,9 @@ class Mysql
             $filename = $filename . '.gz';
         }
 
-        $this->cli->passthru('mysqldump ' . \escapeshellarg($database) . ' | gzip > ' . \escapeshellarg($filename ?: $database));
+        $this->cli->passthru(
+            'mysqldump ' . \escapeshellarg($database) . ' | gzip > ' . \escapeshellarg($filename ?: $database)
+        );
 
         return [
             'database' => $database,
@@ -499,7 +489,7 @@ class Mysql
     /**
      * Open Mysql database via Sequel pro.
      *
-     * @param string $name
+     * @param  string  $name
      */
     public function openSequelPro($name = '')
     {

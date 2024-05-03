@@ -8,7 +8,7 @@ assignees: ''
 ---
 
 - [ ] I've checked the issue queue and could not find anything similar to my feature.
-- [ ] I'm on the latest version of valet-plus (`valet --version`): `<Valet-Pro-Max-Version>`
+- [ ] I'm on the latest version of valet-pro-max (`valet --version`): `<Valet-Pro-Max-Version>`
 
 **Why implement this feature?**  
 A description of why you think the feature is useful.
