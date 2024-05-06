@@ -48,6 +48,7 @@ class Configuration extends ValetConfiguration
     public function createLogDirectory(): void
     {
         parent::createLogDirectory();
+        $this->files->touch(VALET_HOME_PATH . '/Log/php-fpm.log.slow');
         $this->installNewsysLogRotation();
     }
 
@@ -64,15 +65,24 @@ class Configuration extends ValetConfiguration
      *
      * @return void
      */
-    protected function installNewsysLogRotation(): void
+    public function installNewsysLogRotation(): void
     {
         // Place config file to rotate log files in Valet Pro Max log path.
         $contents = $this->files->get(static::LOG_ROTATE_STUB_FILE);
-        $contents = str_replace('VALET_HOME_PATH', VALET_HOME_PATH, $contents);
 
         $this->files->putAsUser(
             static::LOG_ROTATE_FILE,
-            $contents
+            str_replace(
+                [
+                    'VALET_HOME_PATH',
+                    'BREW_PREFIX_PATH',
+                ],
+                [
+                    VALET_HOME_PATH,
+                    BREW_PREFIX,
+                ],
+                $contents
+            )
         );
 
         //@todo; Set up log rotation for BREW_PREFIX . '/var/log/' to rotate elasticsearch logs

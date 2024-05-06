@@ -7,12 +7,28 @@ namespace Lotus\ValetProMax\Extended;
 use DomainException;
 use Valet\Brew as ValetBrew;
 
+use function Valet\user;
+
 class Brew extends ValetBrew
 {
     /**
+     * Untap the given formulas.
+     */
+    public function untap($formulas): void
+    {
+        $formulas = is_array($formulas) ? $formulas : func_get_args();
+
+        foreach ($formulas as $formula) {
+            $this->cli->passthru(
+                static::BREW_DISABLE_AUTO_CLEANUP . ' sudo -u "' . user() . '" brew untap ' . $formula
+            );
+        }
+    }
+
+    /**
      * Check if brew has the given tap.
      *
-     * @param string $formula
+     * @param  string  $formula
      *
      * @return bool
      */

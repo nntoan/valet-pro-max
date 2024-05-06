@@ -68,9 +68,11 @@ class Mysql
     /**
      * Install the service.
      *
-     * @param $type
+     * @param string $type
+     *
+     * @throws \JsonException
      */
-    public function install($type = self::MYSQL_DEFAULT_VERSION)
+    public function install(string $type = self::MYSQL_DEFAULT_VERSION): void
     {
         $this->verifyType($type);
 
@@ -110,7 +112,7 @@ class Mysql
      *
      * @throws DomainException
      */
-    public function verifyType($type)
+    public function verifyType($type): void
     {
         if (!in_array($type, $this->getSupportedVersions())) {
             $supportedVersionsString = implode(', ', $this->getSupportedVersions());
@@ -125,7 +127,7 @@ class Mysql
      *
      * @return array
      */
-    public function getSupportedVersions()
+    public function getSupportedVersions(): array
     {
         return static::MYSQL_SUPPORTED_VERSIONS;
     }
@@ -147,12 +149,12 @@ class Mysql
     /**
      * Stop the Mysql service.
      */
-    public function stop()
+    public function stop(): void
     {
         $version = $this->installedVersion();
         info("Stopping {$version}...");
 
-        $this->cli->quietly('sudo brew services stop ' . $version);
+        $this->brew->stopService($version);
         $this->cli->quietlyAsUser('brew services stop ' . $version);
     }
 
@@ -161,7 +163,7 @@ class Mysql
      *
      * @param string $type
      */
-    public function installConfiguration($type = self::MYSQL_DEFAULT_VERSION)
+    public function installConfiguration($type = self::MYSQL_DEFAULT_VERSION): void
     {
         info('Updating ' . $type . ' configuration...');
 
@@ -184,6 +186,7 @@ class Mysql
     public function restart()
     {
         $version = $this->installedVersion() ?: self::MYSQL_DEFAULT_VERSION;
+        $this->brew->stopService($version);
         info("Restarting {$version}...");
         $this->cli->quietlyAsUser('brew services restart ' . $version);
     }

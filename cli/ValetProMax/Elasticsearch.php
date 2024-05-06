@@ -34,33 +34,33 @@ class Elasticsearch extends AbstractDockerService
     /** @var string[] */
     protected const OPENSEARCH_PLUGINS = [
         self::ANALYSIS_PHONETIC_PLUGIN => [
-            'default' => true
+            'default' => true,
         ],
         self::ANALYSIS_ICU_EXTENSION => [
-            'default' => true
-        ]
+            'default' => true,
+        ],
     ];
 
     /** @var string */
-    protected const ES_DEFAULT_VERSION = 'opensearch@1';
+    public const ES_DEFAULT_VERSION = 'opensearch@1';
     /** @var string[] */
     public const ES_SUPPORTED_VERSIONS = [
         'opensearch',
         'opensearch@1',
         'elasticsearch6',
         'elasticsearch7',
-        'elasticsearch8'
+        'elasticsearch8',
     ];
     /** @var string[] */
     public const ES_DOCKER_VERSIONS = [
         'elasticsearch6',
         'elasticsearch7',
-        'elasticsearch8'
+        'elasticsearch8',
     ];
     /** @var string[] */
     public const ES_EOL_VERSIONS = [
         'opensearch@1',
-        'elasticsearch@6'
+        'elasticsearch@6',
     ];
     /** @var string[] */
     public const ES_MAPPING_VERSIONS = [
@@ -68,18 +68,21 @@ class Elasticsearch extends AbstractDockerService
         'opensearch@2' => 'opensearch',
         'elasticsearch@6' => 'elasticsearch6',
         'elasticsearch@7' => 'elasticsearch7',
-        'elasticsearch@8' => 'elasticsearch8'
+        'elasticsearch@8' => 'elasticsearch8',
     ];
 
     /** @var string[] */
     public $taps = [
+        'nntoan/opensearch-maintenance',
+    ];
+
+    /** @var string[] */
+    public $deprecatedTaps = [
         'isaaceindhoven/opensearch-maintenance',
     ];
 
-    /** @var Brew */
-    protected $brew;
-    /** @var Site */
-    protected $site;
+    protected Brew $brew;
+    protected Site $site;
 
     /**
      * @param CommandLine $cli
@@ -185,7 +188,7 @@ class Elasticsearch extends AbstractDockerService
      * @param string $version
      * @param string $tld
      */
-    public function useVersion($version = self::ES_DEFAULT_VERSION, $tld = 'test')
+    public function useVersion($version = self::ES_DEFAULT_VERSION, $tld = 'test'): void
     {
         $version = $this->validateRequestedVersion($version);
 
@@ -226,7 +229,7 @@ class Elasticsearch extends AbstractDockerService
      */
     public function stop($version = null)
     {
-        $version = ($version ? $version : $this->getCurrentVersion());
+        $version = $version ?: ($this->getCurrentVersion() ?: static::ES_DEFAULT_VERSION);
         if (!$version) {
             return;
         }
@@ -251,7 +254,7 @@ class Elasticsearch extends AbstractDockerService
      */
     public function restart($version = null)
     {
-        $version = ($version ? $version : $this->getCurrentVersion());
+        $version = $version ?: ($this->getCurrentVersion() ?: static::ES_DEFAULT_VERSION);
         if (!$version) {
             return;
         }
@@ -259,6 +262,7 @@ class Elasticsearch extends AbstractDockerService
         if ($this->isDockerVersion($version)) {
             $this->stopContainer($version);
             $this->upContainer($version);
+
             return;
         }
 
@@ -266,21 +270,25 @@ class Elasticsearch extends AbstractDockerService
             return;
         }
 
+        if (!$this->isDockerVersion($version)) {
+            $this->configure($version);
+        }
+
         info("Restarting {$version}...");
         $this->cli->quietlyAsUser('brew services restart ' . $version);
     }
 
     /**
-     * Install the requested version of elasticsearch.
+     * Configure the requested version of elasticsearch.
      *
      * @param string $version
-     * @param string $tld
      */
-    public function install($version = self::ES_DEFAULT_VERSION, $tld = 'test')
+    public function configure(string $version = self::ES_DEFAULT_VERSION): void
     {
         $version = $this->validateRequestedVersion($version);
 
         if (!$this->isDockerVersion($version)) {
+            $this->brew->unTap($this->deprecatedTaps);
             // For Docker versions we don't need to anything here.
 
             // todo; install java dependency? and remove other java deps? seems like there can be only one running.
@@ -315,14 +323,30 @@ class Elasticsearch extends AbstractDockerService
             $this->enforcePlugins($version);
         }
 
+        if (!$this->site->getSiteConfigFileContents('elasticsearch')) {
+            $this->site->proxyCreate('elasticsearch', 'http://127.0.0.1:9200', true);
+        }
+    }
+
+    /**
+     * Install the requested version of elasticsearch.
+     *
+     * @param string $version
+     * @param string $tld
+     */
+    public function install(string $version = self::ES_DEFAULT_VERSION, string $tld = 'test'): void
+    {
+        $version = $this->validateRequestedVersion($version);
+
+        $this->configure($version);
+
         $this->restart($version);
-        $this->site->proxyCreate('elasticsearch', 'http://127.0.0.1:9200', true);
     }
 
     /**
      * Uninstall all supported versions.
      */
-    public function uninstall()
+    public function uninstall(): void
     {
         $this->site->proxyDelete('elasticsearch');
 

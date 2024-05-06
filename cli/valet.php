@@ -8,6 +8,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
+
 use function Valet\info;
 use function Valet\output;
 use function Valet\table;
@@ -161,6 +162,7 @@ if (is_dir(VALET_HOME_PATH)) {
                 Varnish::restart();
                 RedisService::restart();
                 Rabbitmq::restart();
+                Elasticsearch::restart();
                 break;
             case 'mysql':
                 Mysql::restart();
@@ -182,6 +184,10 @@ if (is_dir(VALET_HOME_PATH)) {
                 Rabbitmq::restart();
 
                 return info('Rabbitmq has been started.');
+            case 'elasticsearch':
+                Elasticsearch::restart();
+
+                return info('Elasticsearch has been restarted.');
         }
 
         $cmd->run($input, $output);
@@ -199,6 +205,7 @@ if (is_dir(VALET_HOME_PATH)) {
                 Varnish::restart();
                 RedisService::restart();
                 Rabbitmq::restart();
+                Elasticsearch::restart();
                 break;
             case 'mysql':
                 Mysql::restart();
@@ -220,6 +227,10 @@ if (is_dir(VALET_HOME_PATH)) {
                 Rabbitmq::restart();
 
                 return info('Rabbitmq has been restarted.');
+            case 'elasticsearch':
+                Elasticsearch::restart();
+
+                return info('Elasticsearch has been restarted.');
         }
 
         $cmd->run($input, $output);
@@ -237,6 +248,7 @@ if (is_dir(VALET_HOME_PATH)) {
                 Varnish::stop();
                 RedisService::stop();
                 Rabbitmq::stop();
+                Elasticsearch::stop();
                 break;
             case 'mysql':
                 Mysql::stop();
@@ -258,6 +270,10 @@ if (is_dir(VALET_HOME_PATH)) {
                 Rabbitmq::stop();
 
                 return info('Rabbitmq has been stopped.');
+            case 'elasticsearch':
+                Elasticsearch::stop();
+
+                return info('Elasticsearch has been stopped.');
         }
 
         $cmd->run($input, $output);
@@ -344,9 +360,9 @@ if (is_dir(VALET_HOME_PATH)) {
         })
         ->descriptions('Enable/disable Mailhog')
         ->addArgument(
-                'mode',
-                InputArgument::REQUIRED,
-                'Available modes: ' . implode(', ', ['install', 'on', 'enable', 'off', 'disable', 'uninstall'])
+            'mode',
+            InputArgument::REQUIRED,
+            'Available modes: ' . implode(', ', ['install', 'on', 'enable', 'off', 'disable', 'uninstall'])
         );
 
     /**
@@ -647,7 +663,8 @@ if (is_dir(VALET_HOME_PATH)) {
             'elasticsearch',
             function (InputInterface $input, OutputInterface $output, $mode, $targetVersion = null, $current = false) {
                 $modes = ['install', 'use', 'on', 'enable', 'off', 'disable', 'uninstall'];
-                $targetVersion = $targetVersion ?? 'opensearch'; //@todo only when we don't have any installed versions, if we do pick the first installed?
+                //@todo only when we don't have any installed versions, if we do pick the first installed?
+                $targetVersion = $targetVersion ?? Elasticsearch::ES_DEFAULT_VERSION;
 
                 if ($current) {
                     // Show current running version information.

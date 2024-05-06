@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Lotus\ValetProMax\Extended;
 
 use Illuminate\Container\Container;
+use Lotus\ValetProMax\Event\DataEvent;
+use Lotus\ValetProMax\PhpExtension;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Valet\Brew;
 use Valet\CommandLine;
@@ -13,13 +15,13 @@ use Valet\Filesystem;
 use Valet\Nginx;
 use Valet\PhpFpm as ValetPhpFpm;
 use Valet\Site;
-use Lotus\ValetProMax\Event\DataEvent;
-use Lotus\ValetProMax\PhpExtension;
+
+use function Valet\user;
 
 class PhpFpm extends ValetPhpFpm
 {
     /** @var PhpExtension */
-    protected $phpExtension;
+    protected PhpExtension $phpExtension;
     /** @var EventDispatcher */
     protected $eventDispatcher;
 
@@ -95,16 +97,24 @@ class PhpFpm extends ValetPhpFpm
     {
         parent::createConfigurationFiles($phpVersion);
 
+        // Get php directory.
+        $fpmConfigFile = $this->fpmConfigPath($phpVersion);
+        $destDir = dirname(dirname($fpmConfigFile)) . '/conf.d/';
+
+        // Create FPM Config File from stub
+        $contents = str_replace(
+            ['VALET_USER', 'VALET_HOME_PATH', 'valet.sock'],
+            [user(), VALET_HOME_PATH, self::fpmSockName($phpVersion)],
+            $this->files->getStub('etc-phpfpm-valet.conf')
+        );
+        $this->files->put($fpmConfigFile, $contents);
+
         // Get local timezone
         $systemZoneName = readlink('/etc/localtime');
         // All versions below High Sierra
         $systemZoneName = str_replace('/usr/share/zoneinfo/', '', $systemZoneName);
         // macOS High Sierra has a new location for the timezone info
         $systemZoneName = str_replace('/var/db/timezone/zoneinfo/', '', $systemZoneName);
-
-        // Get php directory.
-        $fpmConfigFile = $this->fpmConfigPath($phpVersion);
-        $destDir = dirname(dirname($fpmConfigFile)) . '/conf.d/';
 
         // Add performance ini settings.
         $contents = $this->files->get(__DIR__ . '/../../stubs/z-performance.ini'); //@todo; remove file on uninstall?
