@@ -29,6 +29,7 @@ brew services restart php@8.1
 > :warning: If you're switching from Valet+ 2.x use the extra following steps.
 > - Uninstall Valet+ with `valet uninstall` first.
 > - Remove Valet+ package with `composer global remove weprovide/valet-plus`.
+> - For more information how to migrate from Valet+ - check [this documentation](https://github.com/nntoan/valet-pro-max/wiki/Migration-from-Valet-Plus-2.x)
 
 Install Valet **Pro Max** 1.x-dev with composer:
 ```shell
