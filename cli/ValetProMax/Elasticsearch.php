@@ -298,7 +298,11 @@ class Elasticsearch extends AbstractDockerService
         $version = $this->validateRequestedVersion($version);
 
         if (!$this->isDockerVersion($version)) {
-            $this->brew->unTap($this->deprecatedTaps);
+            foreach ($this->deprecatedTaps as $deprecatedTap) {
+                if ($this->brew->hasTap($deprecatedTap)) {
+                    $this->brew->unTap($this->deprecatedTaps);
+                }
+            }
             // For Docker versions we don't need to anything here.
 
             // todo; install java dependency? and remove other java deps? seems like there can be only one running.
