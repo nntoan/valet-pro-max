@@ -103,6 +103,16 @@ class Elasticsearch extends AbstractDockerService
     }
 
     /**
+     * Returns default support elasticsearch version.
+     *
+     * @return string
+     */
+    public function getDefaultVersion()
+    {
+        return static::ES_DEFAULT_VERSION;
+    }
+
+    /**
      * Returns supported elasticsearch versions.
      *
      * @return string[]

@@ -664,7 +664,7 @@ if (is_dir(VALET_HOME_PATH)) {
             function (InputInterface $input, OutputInterface $output, $mode, $targetVersion = null, $current = false) {
                 $modes = ['install', 'use', 'on', 'enable', 'off', 'disable', 'uninstall'];
                 //@todo only when we don't have any installed versions, if we do pick the first installed?
-                $targetVersion = $targetVersion ?? Elasticsearch::ES_DEFAULT_VERSION;
+                $targetVersion = $targetVersion ?? Elasticsearch::getDefaultVersion();
 
                 if ($current) {
                     // Show current running version information.
